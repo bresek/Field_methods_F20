@@ -1,0 +1,47 @@
+---
+title: "week1 arboritum anaysis"
+author: "Ben"
+date: "9/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+```
+
+```{r read in data}
+#read in data 
+one <- read_csv("w1_fieldmethodsdata.csv", guess_max = 40)
+#reformat variable names
+one <- clean_names(one)
+#rename Oak to oak for consistency 
+one$genus_of_closest_canopy_tree <- one$genus_of_closest_canopy_tree %>% recode(Oak = "oak")
+# rename NAs for consistency 
+one[one == "N/A"] <- NA
+#check data 
+glimpse(one)
+#change seedlings type from chr to int
+one$number_of_seedlings <- as.integer(one$number_of_seedlings)
+```
+
+
+```{r graph of seedling density as a function of percent canopy cover}
+# not sure what is meant by seedling density? Should I divide by 1 meter?
+ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = canopy_cover_percent, y = number_of_seedlings))+geom_point()+geom_smooth(method = lm)
+```
+
+```{r graph of seedling density as a function of light intensity}
+ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = light_intensity_lux , y = number_of_seedlings,))+geom_point()+geom_smooth(method = lm)
+```
+
+```{r graph of seedling density as a function of soil depth}
+ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = soil_depth_cm , y = number_of_seedlings,))+geom_point()+geom_smooth(method = lm)
+```
+
+```{r}
+# had to remove for double counted plots also had to rename values to be consistent 
+one %>% distinct(plot_number, .keep_all = TRUE) %>% group_by(genus_of_closest_canopy_tree)%>%summarize(count = n()) %>% mutate(current_canopy_dens = count/sum(count))
+```
+

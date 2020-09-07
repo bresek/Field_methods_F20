@@ -1,0 +1,34 @@
+Plot number,Seedling genus,Number of seedlings,Canopy cover (%),Light intensity (lux),Soil depth (cm),Genus of closest canopy tree,Genus of potential successor 1,Genus of potential successor 2,Genus of potential successor 3,Notes
+1-1,oak,2,94.80,785,13,maple,cherry,maple,maple,
+1-1,maple,1,94.8,785,13,maple,cherry,maple,maple,
+1-2,cherry,1,97.2,370,9,oak,beech,pine,maple,steeper slope than plot 1
+1-3,oak,3,88.60,1060,30+,oak,maple,cherry,maple,
+1-3,hawthorn,1,88.60,1060,30+,oak,maple,cherry,maple,
+1-4,cherry,3,84.4,1770,9,oak,cherry,maple,oak,
+1-4,oak ,1,84.4,1770,9,oak,cherry,maple,oak,
+1-5,cherry,9,92.7,3400,30+,oak,cherry,oak ,cherry,
+1-5,oak,6,92.7,3400,30+,oak,cherry,oak ,cherry,
+1-6,cherry,4,94.8,2100,16.5,oak,beech,oak ,beech,"the next 5 plots all lie on a steeper slope than the previous 5. Additionally, the sun was in and out of the clouds during these measurements 
+"
+1-6,beech,1,94.8,2100,16.5,oak,beech,oak ,beechq,
+1-7,cherry,5,94.8,695,12,oak,beech,oak ,maple,cloud cover
+1-7,black currant,18,94.8,695,12,oak,beech,oak ,maple,
+1-7,oak,1,94.8,695,12,oak,beech,oak ,maple,
+1-8,cherry,4,86.5,3900,23,oak,maple,cherry,oak,
+1-8,oak,5,86.5,3900,23,oak,maple,cherry,oak,
+1-8,maple,1,86.5,3900,23,oak,maple,cherry,oak,
+1-8,black currant,11,86.5,3900,23,oak,maple,cherry,oak,
+1-9,cherry,2,88.1,600,9,oak,beech,oak ,cherry,"near trail, cloud cover"
+1-9,black currant,18,88.1,600,9,oak,beech,oak ,cherry,
+1-10,oak,3,85.4,2750,11,oak,beech,pine,cherry,
+1-10,cherry,3,85.4,2750,11,oak,beech,pine,cherry,
+ 2-1,"Oak, Cherry, Ash",9,94.8,590,17,Oak,Ash,Cherry,N/A,Start of first transect
+ 2-2,"Cherry, Maple, Oak",5,93.67,516,15.5,Oak,Maple,N/A,N/A,
+ 2-3,N/A,N/A,89.6,190,9,Hickory,Maple,N/A,N/A,
+ 2-4,"Cherry, Maple, Oak",4,88.56,180,10,Hickory,Birch,Maple,Hickory,
+ 2-5,"Oak, Pine, Maple",4,92.72,92,11,Oak,Pine,Beech,N/A,
+ 2-6,Maple,1,93.76,127,8.5,Oak,Maple,N/A,N/A,Start of second transect
+ 2-7,"Cherry, Pine, Oak",3,89.6,287,13,Maple,Maple,Birch,N/A,
+ 2-8,Oak,1,95.84,75,7.5,Oak,Oak,Maple,N/A,
+ 2-9,"Maple, Pine",3,91.68,66,16,Oak,Hemlock,Maple,Pine,
+ 2-10,Cherry,1,94.8,401,8.5,Oak,Oak,Maple,Cherry,
