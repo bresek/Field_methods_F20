@@ -2,12 +2,12 @@ Plot number,Seedling genus,Number of seedlings,Canopy cover (%),Light intensity 
 1-1,oak,2,94.80,785,13,maple,cherry,maple,maple,
 1-1,maple,1,94.8,785,13,maple,cherry,maple,maple,
 1-2,cherry,1,97.2,370,9,oak,beech,pine,maple,steeper slope than plot 1
-1-3,oak,3,88.60,1060,30+,oak,maple,cherry,maple,
-1-3,hawthorn,1,88.60,1060,30+,oak,maple,cherry,maple,
+1-3,oak,3,88.60,1060,30,oak,maple,cherry,maple,
+1-3,hawthorn,1,88.60,1060,30,oak,maple,cherry,maple,
 1-4,cherry,3,84.4,1770,9,oak,cherry,maple,oak,
 1-4,oak ,1,84.4,1770,9,oak,cherry,maple,oak,
-1-5,cherry,9,92.7,3400,30+,oak,cherry,oak ,cherry,
-1-5,oak,6,92.7,3400,30+,oak,cherry,oak ,cherry,
+1-5,cherry,9,92.7,3400,30,oak,cherry,oak ,cherry,
+1-5,oak,6,92.7,3400,30,oak,cherry,oak ,cherry,
 1-6,cherry,4,94.8,2100,16.5,oak,beech,oak ,beech,"the next 5 plots all lie on a steeper slope than the previous 5. Additionally, the sun was in and out of the clouds during these measurements 
 "
 1-6,beech,1,94.8,2100,16.5,oak,beech,oak ,beechq,

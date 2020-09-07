@@ -14,6 +14,10 @@ library(janitor)
 ```{r read in data}
 #read in data 
 one <- read_csv("w1_fieldmethodsdata.csv", guess_max = 40)
+
+```
+
+```{r data cleaning}
 #reformat variable names
 one <- clean_names(one)
 #rename Oak to oak for consistency 
@@ -24,24 +28,40 @@ one[one == "N/A"] <- NA
 glimpse(one)
 #change seedlings type from chr to int
 one$number_of_seedlings <- as.integer(one$number_of_seedlings)
-```
 
+```
+I need to get the count of seedlings regardless of species and join that with needed data CANOPY COVER, LIGHT INTENSTY, SOIL DEPTH
+```{r fix for data that is seperated by plot}
+one
+#create data frame for number of seedlings by plot ignoring species
+sum_seeds <- one %>% group_by(plot_number)%>%summarise(seedling_count = sum(number_of_seedlings))
+#c
+ind <- one %>% select(plot_number, canopy_cover_percent, light_intensity_lux, soil_depth_cm) 
+ind <- unique(ind)
+oned <- left_join(sum_seeds, ind, by = "plot_number", )
+```
 
 ```{r graph of seedling density as a function of percent canopy cover}
 # not sure what is meant by seedling density? Should I divide by 1 meter?
-ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = canopy_cover_percent, y = number_of_seedlings))+geom_point()+geom_smooth(method = lm)
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = canopy_cover_percent, y = seedling_count))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "% Canopy Cover")
+ggsave("canopy.png")
 ```
 
 ```{r graph of seedling density as a function of light intensity}
-ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = light_intensity_lux , y = number_of_seedlings,))+geom_point()+geom_smooth(method = lm)
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = light_intensity_lux , y = seedling_count,))+geom_point()+geom_smooth(method = "lm")+labs(y = "Seedling Count (# by plot)", x = "Light Intensity (Lux)")
+ggsave("lux.png")
+
+
 ```
 
 ```{r graph of seedling density as a function of soil depth}
-ggplot(data = subset.data.frame(one, !is.na(number_of_seedlings)),aes(x = soil_depth_cm , y = number_of_seedlings,))+geom_point()+geom_smooth(method = lm)
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = soil_depth_cm , y = seedling_count,))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "Soil Depth (cm)")
+ggsave("soil.png")
 ```
 
 ```{r}
 # had to remove for double counted plots also had to rename values to be consistent 
 one %>% distinct(plot_number, .keep_all = TRUE) %>% group_by(genus_of_closest_canopy_tree)%>%summarize(count = n()) %>% mutate(current_canopy_dens = count/sum(count))
+
 ```
 
