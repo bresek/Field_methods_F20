@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
+library(ggrepel)
 ```
 
 ```{r read in data}
@@ -43,25 +44,29 @@ oned <- left_join(sum_seeds, ind, by = "plot_number", )
 
 ```{r graph of seedling density as a function of percent canopy cover}
 # not sure what is meant by seedling density? Should I divide by 1 meter?
-ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = canopy_cover_percent, y = seedling_count))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "% Canopy Cover")
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = canopy_cover_percent, y = seedling_count, label = plot_number))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "% Canopy Cover")+geom_label_repel(box.padding = .5)
 ggsave("canopy.png")
+
+lm(oned$seedling_count ~ oned$canopy_cover_percent)%>%summary()
 ```
 
 ```{r graph of seedling density as a function of light intensity}
-ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = light_intensity_lux , y = seedling_count,))+geom_point()+geom_smooth(method = "lm")+labs(y = "Seedling Count (# by plot)", x = "Light Intensity (Lux)")
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = light_intensity_lux , y = seedling_count,label = plot_number))+geom_point()+geom_smooth(method = "lm")+labs(y = "Seedling Count (# by plot)", x = "Light Intensity (Lux)")+geom_label_repel(box.padding = .5)
 ggsave("lux.png")
 
-
+lm(oned$seedling_count ~ oned$light_intensity_lux)%>%summary()
 ```
 
 ```{r graph of seedling density as a function of soil depth}
-ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = soil_depth_cm , y = seedling_count,))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "Soil Depth (cm)")
+ggplot(data = subset.data.frame(oned, !is.na(seedling_count)),aes(x = soil_depth_cm , y = seedling_count,label = plot_number))+geom_point()+geom_smooth(method = lm)+labs(y = "Seedling Count (# by plot)", x = "Soil Depth (cm)")+geom_label_repel(box.padding = .5)
 ggsave("soil.png")
+
+attach(oned)
+lm(oned$seedling_count ~ oned$soil_depth_cm)%>%summary()
 ```
 
 ```{r}
-# had to remove for double counted plots also had to rename values to be consistent 
-one %>% distinct(plot_number, .keep_all = TRUE) %>% group_by(genus_of_closest_canopy_tree)%>%summarize(count = n()) %>% mutate(current_canopy_dens = count/sum(count))
-
+lm(oned$seedling_count ~ oned$light_intensity_lux + oned$canopy_cover_percent)%>% summary()
 ```
+
 
