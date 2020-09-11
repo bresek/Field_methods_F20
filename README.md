@@ -1,2 +1,2 @@
-# Forest_Regen_FM_W1
-R code for creating graphs for first week field methods 
+# Field_methods_fall_2020
+R code for cleaning data and making graphs for field methods class
