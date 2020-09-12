@@ -1,0 +1,44 @@
+---
+title: "w_2_analysis_old_growth"
+author: "Ben"
+date: "9/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(ggrepel)
+```
+
+```{r read in data}
+p <- read_csv("w2/data/plot_data.csv",guess_max = 1000 )
+p <- clean_names(p)
+
+```
+
+```{r clean data - find out how many of bad site names }
+#fix site value names
+p %>% group_by(site) %>% summarise( count = n())
+
+```
+
+```{r create a key to recode messy site variables }
+site_key <- tribble(~site, ~site_code,
+       "O", "OG",
+       "old", "OG",
+       "Old", "OG",
+       "old forest", "OG",
+       "Old Growth", "OG",
+       "S", "2G",
+       "Second","2G",
+       "second-growth", "2G"
+       )
+```
+
+```{r}
+P_tidy <- left_join(p, site_key, by = "site")
+```
+
