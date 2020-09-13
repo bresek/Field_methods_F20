@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(ggrepel)
+library(gt)
+
 ```
 
 ```{r read in data}
@@ -39,6 +41,137 @@ site_key <- tribble(~site, ~site_code,
 ```
 
 ```{r}
-P_tidy <- left_join(p, site_key, by = "site")
+p %>% group_by(genus) %>% summarise( count = n())
+
+```
+
+```{r create key for renaming genus}
+genus_key <- tribble(~genus, ~genus_clean,
+                     "aspen","aspen",
+        "Beach", "beach",
+        "birch","birch",
+        "Birch", "birch",
+        "chestnut oak","chestnut oak",
+        "conifer","conifer",
+        "Confier", "conifer",
+        "Conifer","conifer",
+        "dogwood","dogwood",
+        "H","hemlock",
+        "hardwood","hardwood",
+        "Hardwood","hardwood",
+        "Hem","hemlock",
+        "Hemlcok","hemlock",
+        "Hemlock", "hemlock",
+        "hemlock","hemlock",
+        "M", "maple",
+        "Maple","maple",
+        "maple","maple",
+        "oak","oak",
+        "O","oak",
+        "Oak","oak",
+        "paper birch","paper birch",
+        "red maple", "red maple",
+        "sap","sap",
+        "Snag", "Snag",
+        "unknown", "unknown",
+        "Unknown", "unknown",
+        "yellow birch", "yellow birch"
+        
+        )
+
+```
+
+```{r join clean site code and rearrange columns}
+p_tidy <- left_join(p, site_key, by = "site")
+p_tidy <- left_join(p_tidy, genus_key, by = "genus")
+p_tidy <- p_tidy %>% select(year, site_code,plot_number ,genus_clean,everything(),!site,genus, )
+
+```
+
+Variavles need:
+Study site | status(Og/2g) | Hemlock(%)| Density(stems/ha)|Basal area (m^2/ha)| Maximum age(yr) |
+mean canopy tree age(yr)|Elevation (m)
+|slope|Aspet
+```{r trying to create table 1 from D'Amato et al. 2008}
+#calculate number of trees by genus and site
+genus_site_count <- p_tidy %>%
+        #filter(l_d == "L")%>%
+        group_by(genus_clean, site_code) %>% 
+        summarise( tree_of_genus_count = n())
+#calculate total number of trees by genus and site
+site_count <- p_tidy %>%
+       # filter(l_d == "L")%>%
+        group_by(site_code) %>% 
+        summarise(tree_at_site_total = n())
+
+genus_site_count
+site_count
+
+# first part of table 
+genus_proportion <- left_join(genus_site_count,site_count, by = "site_code")%>%
+        mutate(percent_genus = tree_of_genus_count/tree_at_site_total)%>%
+        filter(genus_clean == "hemlock")
+```
+many plots x 0.01 and that’s your area
+calculate  densitiy( stems/ha)
+```{r}
+
+p_tidy %>%  group_by(plot_number) %>% summarise( count = n()) %>% arrange(desc(plot_number))
+
+#calculate total area
+ha <-   p_tidy %>%
+        group_by(site_code, year) %>% 
+        summarise(num_plots = length(unique(plot_number, year)))%>%
+        group_by(site_code)%>% 
+        summarise(total_plots = sum(num_plots))%>%
+        mutate(ha = total_plots * .01)
+#calculate total stems
+stems_per_site <-  p_tidy %>%
+        filter(l_d == "L")%>%
+        filter(dbh_cm > 10)%>%
+        group_by(site_code) %>% 
+        summarise( tree_of_genus_count = length(genus_clean))
+
+density_stems_ha <- inner_join(ha, stems_per_site, by = "site_code") %>% mutate(density_stems_p_ha = tree_of_genus_count/ha)
+```
+
+calculate basal area BA = pi * (DBH/2)^2
+
+```{r find basal area}
+basal <- p_tidy %>% 
+        #filter(l_d == "L") %>%
+        mutate(basal_area_m =(( pi * (dbh_cm / 2)^2)/10000) )%>%
+        group_by(site_code)%>%
+        summarise(tot_basal = sum(basal_area_m , na.rm = TRUE) )
+
+basal_area <- left_join(basal, ha, by = "site_code")%>%
+        mutate(basal_area_m2_ha = tot_basal / ha)
+        
+```
+
+
+```{r create data frame holding new found table info}
+genus_proportion <- genus_proportion %>% select(site_code, percent_genus)
+density_stems_ha <- density_stems_ha %>% select(site_code, density_stems_p_ha)
+basal_area <- basal_area%>% select(site_code, basal_area_m2_ha)
+
+tableone <-inner_join(genus_proportion, density_stems_ha, by = "site_code")%>%
+        inner_join(basal_area, by = "site_code")
+        
+tableone$genus_clean <- NULL
+        tableone
+       
+```
+
+```{r make table 1}
+tableone %>% 
+        gt()%>%
+        
+        cols_label(site_code = "Status",
+                   percent_genus = "Hemlock (%)",
+                   density_stems_p_ha = "Density (stems/ha)", 
+                   basal_area_m2_ha = "Basal area (m^2/ha)")%>%
+        fmt_number(columns = 2:4)
+        
 ```
 
