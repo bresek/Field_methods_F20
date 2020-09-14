@@ -88,6 +88,23 @@ p_tidy <- p_tidy %>% select(year, site_code,plot_number ,genus_clean,everything(
 
 ```
 
+```{r reformat sapling data}
+p_tidy %>% group_by(sapling_or_tree) %>%
+        summarise(n = n())
+p_tidy <- p_tidy %>% 
+        mutate( sapling_or_tree = case_when(sapling_or_tree == "sap" ~ "sapling",
+                                            sapling_or_tree == "sapling" ~ "sapling",
+                                            sapling_or_tree == "Sapling" ~ "sapling",
+                                            sapling_or_tree == "stump" ~ "stump",
+                                            
+                                            
+                                          
+                                           TRUE ~ "other"
+                                          
+                                           ))
+p_tidy %>% group_by(sapling_or_tree) %>%
+        summarise(n = n())
+```
 Variavles need:
 Study site | status(Og/2g) | Hemlock(%)| Density(stems/ha)|Basal area (m^2/ha)| Maximum age(yr) |
 mean canopy tree age(yr)|Elevation (m)
@@ -113,8 +130,8 @@ genus_proportion <- left_join(genus_site_count,site_count, by = "site_code")%>%
         filter(genus_clean == "hemlock")
 ```
 many plots x 0.01 and that’s your area
-calculate  densitiy( stems/ha)
-```{r}
+
+```{r calculate  densitiy( stems/ha)}
 
 p_tidy %>%  group_by(plot_number) %>% summarise( count = n()) %>% arrange(desc(plot_number))
 
@@ -140,7 +157,7 @@ calculate basal area BA = pi * (DBH/2)^2
 ```{r find basal area}
 basal <- p_tidy %>% 
         #filter(l_d == "L") %>%
-        mutate(basal_area_m =(( pi * (dbh_cm / 2)^2)/10000) )%>%
+        mutate(basal_area_m =(( pi * ((dbh_cm) / 2)^2)/10000) )%>%
         group_by(site_code)%>%
         summarise(tot_basal = sum(basal_area_m , na.rm = TRUE) )
 
@@ -164,7 +181,7 @@ tableone$genus_clean <- NULL
 ```
 
 ```{r make table 1}
-tableone %>% 
+tonedone <- tableone %>% 
         gt()%>%
         
         cols_label(site_code = "Status",
@@ -173,5 +190,178 @@ tableone %>%
                    basal_area_m2_ha = "Basal area (m^2/ha)")%>%
         fmt_number(columns = 2:4)
         
+        
 ```
+
+
+```{r}
+p_tidy <- p_tidy %>% mutate( genus_important = "other")%>%
+       mutate( genus_important = case_when(genus_clean == "hemlock" ~ "hemlock", 
+                                           genus_clean == "chestnut oak" ~ "oak",
+                                           genus_clean == "oak" ~ "oak",
+                                           genus_clean == "maple" ~ "maple",
+                                           genus_clean == "conifer" ~ "conifer",
+                                           TRUE ~ "other"
+                                          
+                                           ))
+```
+
+```{r create figure 2 size class distribution}
+p_tidy %>%
+        filter(site_code == "2G" | site_code == "OG") %>%
+        filter(l_d == "L") %>%
+        ggplot(aes(x = dbh_cm)) +
+        geom_histogram(aes(y = stat(count / sum(count)),
+                           fill = genus_important),
+                       binwidth = 5)+
+        facet_wrap(~site_code, ncol = 1)+ 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("Trees (%)")+
+        geom_density(aes(y = (..density..)))+ scale_fill_discrete(breaks=c("hemlock","oak","maple", "conifer", "other"))
+```
+
+
+```{r calculate  densitiy( stems/ha) for trees > 50 cm and saplings }
+
+p_tidy %>%  group_by(plot_number) %>% summarise( count = n()) %>% arrange(desc(plot_number))
+
+#calculate saplings per site
+sapling_stems_per_site <-  p_tidy %>%
+        filter(sapling_or_tree == "sapling")%>%
+        group_by(site_code) %>% 
+        summarise( sapling_count = length(genus_clean))
+
+#calculate number of trees dbh > 50 cm per site
+big_stems_per_site <-  p_tidy %>%
+        filter(dbh_cm >= 50)%>%
+        group_by(site_code) %>% 
+        summarise( fifty_count = length(genus_clean))
+
+
+
+density_sapling_ha <- inner_join(ha, sapling_stems_per_site, by = "site_code") %>% mutate(density_saplings_p_ha = sapling_count/ha)
+
+
+fig4_data <- density_sapling_ha %>%
+        inner_join(big_stems_per_site, by = "site_code") %>% 
+        mutate(density_bigstems_p_ha = fifty_count/ha)
+#reformatted this data in excel to save time
+```
+```{r}
+fig4reformatted <- read_csv("w2/data/fig4data.csv", guess_max = 10000)
+```
+
+```{r making fig 4}
+fig4reformatted %>%
+        ggplot(aes(x = growth, y = density, fill = status))+
+        geom_bar(stat= 'identity', width=.5, position = "dodge") +
+        geom_text(aes(label=density), position=position_dodge(width=0.5), vjust=-0.25)+
+        labs(x = "Growth", y = "Density (Stems/ha)", title = "Density for saplings and trees dbh > 50 cm in old growth and second growth site")
+
+
+```
+
+
+# 
+Downed CWD volume =(𝜋^2 ∑▒𝑑^2/8𝐿)∗(10000𝑚^2)/ℎ𝑎;𝑉=𝑣𝑜𝑙𝑢𝑚𝑒(𝑚^3/ℎ𝑎), 𝑑 𝑖𝑠 𝐶𝑊𝐷 𝑓𝑟𝑎𝑔𝑚𝑒𝑛𝑡 𝑑𝑖𝑎𝑚𝑒𝑡𝑒𝑟 (𝑚 ), 𝐿=𝑡𝑟𝑎𝑛𝑠𝑒𝑐𝑡 𝑙𝑒𝑛𝑔𝑡ℎ 𝑖𝑛 (𝑚)
+```{r}
+cwd <- read_csv("w2/data/transect.csv" )
+```
+```{r}
+cwd <- clean_names(cwd)
+```
+
+```{r clean site codes}
+cwd %>% group_by(site)%>% summarise(n = n())
+cwd <- cwd %>% mutate(site_code = case_when( site == "new" ~ "second",
+                                      site == "O" ~ "old",
+                                      site == "old" ~ "old",
+                                      site == "old forest" ~ "old",
+                                      site == "S" ~ "second",
+                                      site == "second growth" ~ "second",
+                                      
+                                      ))
+```
+
+```{r}
+cwd%>% group_by(decay_class_i_iv)%>% summarise(count = n())
+cwd <- cwd %>% mutate(decay_class = case_when( decay_class_i_iv == "1" ~ "I",
+                                        decay_class_i_iv == "2" ~ "II",
+                                        decay_class_i_iv == "3" ~ "III",
+                                        decay_class_i_iv == "4" ~ "IV",
+                                        decay_class_i_iv == "I" ~ "I",
+                                        decay_class_i_iv == "II" ~ "II",
+                                        decay_class_i_iv == "III" ~ "III",
+                                        decay_class_i_iv == "IV" ~ "IV",
+                                      
+                                      
+                                      ))
+```
+
+
+Downed CWD volume =(𝜋^2 ∑▒𝑑^2/8𝐿)∗(10000𝑚^2)/ℎ𝑎;𝑉=𝑣𝑜𝑙𝑢𝑚𝑒(𝑚^3/ℎ𝑎), 𝑑 𝑖𝑠 𝐶𝑊𝐷 𝑓𝑟𝑎𝑔𝑚𝑒𝑛𝑡 𝑑𝑖𝑎𝑚𝑒𝑡𝑒𝑟 (𝑚 ), 𝐿=𝑡𝑟𝑎𝑛𝑠𝑒𝑐𝑡 𝑙𝑒𝑛𝑔𝑡ℎ 𝑖𝑛 (𝑚)
+
+```{r calculate cwd_v}
+cwd_v <- cwd %>% mutate(dbh_m =dbh_cm / 100) %>%
+        mutate(a = dbh_m^2 / (8*20))%>%
+        group_by(decay_class, site_code,plot_number) %>%
+        summarise( b = sum(a, na.rm = TRUE) )%>%
+        mutate(c = b *(pi^2)*10000) %>%
+        group_by(decay_class, site_code) %>%
+        summarise(d = mean(c, na.rm = TRUE))
+        
+
+```
+```{r figure  cwd volume }
+cwd_v %>%
+        ggplot(aes(x = decay_class, y = d, fill = site_code )) +
+        geom_bar(stat= 'identity', width=.5, position = "dodge")
+        
+        
+
+```
+
+ Snag volume
+was calculated from snag basal area and height utilizing
+volume formulas developed for each fragmentation class
+```{r clean decay class}
+p_tidy %>% group_by(decay_class_i_iv)%>% summarise(count = n())
+
+p_tidy <- p_tidy %>% mutate(decay_class = case_when( decay_class_i_iv == "1" ~ "I",
+                                        decay_class_i_iv == "2" ~ "II",
+                                        decay_class_i_iv == "3" ~ "III",
+                                        decay_class_i_iv == "4" ~ "IV",
+                                        decay_class_i_iv == "I" ~ "I",
+                                        decay_class_i_iv == "II" ~ "II",
+                                        decay_class_i_iv == "III" ~ "III",
+                                        decay_class_i_iv == "IV" ~ "IV",
+                                        TRUE ~ "unknown"
+                                      
+                                      
+                                      ))
+p_tidy %>% filter(l_d == "D") %>%
+        group_by(decay_class)%>% summarise(count = n())
+```
+
+```{r calculate snag volume }
+deadbasal <- p_tidy %>% 
+        filter(l_d == "D") %>%
+        mutate(basal_area_m =(( pi * (dbh_cm / 2)^2)/10000)*height_m )%>%
+        group_by(site_code, decay_class)%>%
+        summarise(tot_basal = sum(basal_area_m , na.rm = TRUE) )
+
+deadbasal_area <- inner_join(deadbasal, ha, by = "site_code")%>%
+        mutate(basal_area_m2_ha = tot_basal / ha)%>%
+        mutate(snag_v = basal_area_m2_ha )
+```
+
+```{r fig5 snag v}
+deadbasal_area %>%
+        ggplot()+
+```
+
+
+
+
+
 
