@@ -12,6 +12,7 @@ library(tidyverse)
 library(janitor)
 library(ggrepel)
 library(gt)
+library(grid)
 
 ```
 
@@ -109,7 +110,7 @@ Variavles need:
 Study site | status(Og/2g) | Hemlock(%)| Density(stems/ha)|Basal area (m^2/ha)| Maximum age(yr) |
 mean canopy tree age(yr)|Elevation (m)
 |slope|Aspet
-```{r trying to create table 1 from D'Amato et al. 2008}
+```{r "trying to create table 1 from D'Amato et al. 2008"}
 #calculate number of trees by genus and site
 genus_site_count <- p_tidy %>%
         #filter(l_d == "L")%>%
@@ -200,13 +201,14 @@ p_tidy <- p_tidy %>% mutate( genus_important = "other")%>%
                                            genus_clean == "chestnut oak" ~ "oak",
                                            genus_clean == "oak" ~ "oak",
                                            genus_clean == "maple" ~ "maple",
-                                           genus_clean == "conifer" ~ "conifer",
+                                          
                                            TRUE ~ "other"
                                           
                                            ))
 ```
 
 ```{r create figure 2 size class distribution}
+labels <- c("2G" = "Second Growth", "OG" = "Old Growth")
 p_tidy %>%
         filter(site_code == "2G" | site_code == "OG") %>%
         filter(l_d == "L") %>%
@@ -214,10 +216,18 @@ p_tidy %>%
         geom_histogram(aes(y = stat(count / sum(count)),
                            fill = genus_important),
                        binwidth = 5)+
-        facet_wrap(~site_code, ncol = 1)+ 
+        facet_wrap(~site_code, ncol = 1, labeller = labeller(site_code = labels))+ 
           scale_y_continuous(labels=scales::percent) +
-          ylab("Trees (%)")+
-        geom_density(aes(y = (..density..)))+ scale_fill_discrete(breaks=c("hemlock","oak","maple", "conifer", "other"))
+        geom_density(aes(y = (..density..)*2.8))+ 
+         labs(y ="Trees (%)", x = "DBH (cm)", caption = "Fig.1 Size class distribution for trees in Hemlock Stands,\n Mt. Wachusett, MA (Based on Fig. 2, D'Amato et al. 2008)")+
+        theme(
+  plot.caption = element_text(hjust = 0)
+  )+
+        scale_fill_discrete(name="Genus of Tree")
+        
+
+ggsave("fig1.png")
+#+ scale_fill_discrete(breaks=c("hemlock","oak","maple", "conifer", "other"))
 ```
 
 
@@ -256,8 +266,13 @@ fig4reformatted %>%
         ggplot(aes(x = growth, y = density, fill = status))+
         geom_bar(stat= 'identity', width=.5, position = "dodge") +
         geom_text(aes(label=density), position=position_dodge(width=0.5), vjust=-0.25)+
-        labs(x = "Growth", y = "Density (Stems/ha)", title = "Density for saplings and trees dbh > 50 cm in old growth and second growth site")
+        labs(x = "Growth", y = "Density (Stems/ha)", title = "Density for saplings and trees dbh > 50 cm\n in old growth and second growth site", caption = "Fig.2 (Based on Fig. 4, D'Amato et al. 2008)")+ 
+         
+        theme(
+  plot.caption = element_text(hjust = 0)
+  )
 
+ggsave("fig2.png", height = 7, width = 4.6)
 
 ```
 
@@ -284,7 +299,7 @@ cwd <- cwd %>% mutate(site_code = case_when( site == "new" ~ "second",
 ```
 
 ```{r}
-cwd%>% group_by(decay_class_i_iv)%>% summarise(count = n())
+
 cwd <- cwd %>% mutate(decay_class = case_when( decay_class_i_iv == "1" ~ "I",
                                         decay_class_i_iv == "2" ~ "II",
                                         decay_class_i_iv == "3" ~ "III",
@@ -313,10 +328,15 @@ cwd_v <- cwd %>% mutate(dbh_m =dbh_cm / 100) %>%
 
 ```
 ```{r figure  cwd volume }
-cwd_v %>%
+plot1 <- cwd_v %>%
+        filter(decay_class != is.na(decay_class))%>%
         ggplot(aes(x = decay_class, y = d, fill = site_code )) +
-        geom_bar(stat= 'identity', width=.5, position = "dodge")
-        
+        geom_bar(stat= 'identity', width=.5, position = "dodge")+
+        labs(x = "Decay Class", y = "Downed CWD Volume (m^3/ha)")+ 
+        scale_fill_discrete(name="Site Type",
+                         labels=c("Old Growth", "Second Growth"))
+
+        ggsave("figure3a.png")
         
 
 ```
@@ -335,7 +355,7 @@ p_tidy <- p_tidy %>% mutate(decay_class = case_when( decay_class_i_iv == "1" ~ "
                                         decay_class_i_iv == "II" ~ "II",
                                         decay_class_i_iv == "III" ~ "III",
                                         decay_class_i_iv == "IV" ~ "IV",
-                                        TRUE ~ "unknown"
+                                        TRUE ~ "unlabeled"
                                       
                                       
                                       ))
@@ -356,11 +376,23 @@ deadbasal_area <- inner_join(deadbasal, ha, by = "site_code")%>%
 ```
 
 ```{r fig5 snag v}
-deadbasal_area %>%
-        ggplot()+
+
+plot2 <- deadbasal_area %>%
+
+        ggplot(aes(x = decay_class, y = snag_v, fill = site_code))+
+        geom_bar(stat= 'identity', width=.5, position = "dodge")+ 
+        labs(x = "Decay Class", y = "Snag Volume (m^3/ha)")+ 
+      scale_fill_discrete(name="Site Type",
+                        labels=c("Old Growth", "Second Growth"))
+ ggsave("figure3b.png")
 ```
 
 
+```{r}
+grid.newpage()
+grid.draw(rbind(ggplotGrob(plot1), ggplotGrob(plot2), size = "first"))
+
+```
 
 
 
