@@ -1,0 +1,26 @@
+Site,Plot #,Debris (#),Infiltration (sec)(values = 60 are actualy 60+),O.horizon   (cm)(values 1 are actually below 1),Soil color   (Munsell),Cover class 1   (%),Cover class 2   (%),Cover class 3   (%),Flora                 (#  spp),Fauna               (# spp),Fauna                   (# individuals) (values = 25 are actually above 25),Notes
+Lot,1.1,3,60,2,10R 4V 1C,60,28,12,4,1,1,Exposed
+Lot,1.2,1,60,1,10YR 4V 2C,80,17,3,5,2,2,Exposed
+Lot,1.3,4,28,1.5,10YR 5V 1C,40,25,35,5,1,1,Exposed
+Lot,1.4,5,19,1,10YR 6V 1C,75,23,2,6,0,0,Exposed
+Lot,1.5,0,60,1,10YR 6V 3C,20,76,4,4,0,0,Shaded
+Lot,1.6,1,60,1,10YR 6V 3C,25,45,30,2,1,1,Shaded
+LOT,2.1,8,26.9,8,10R 4/3 ,50,50,0,9,6,15,
+LOT,2.2,6,2.2,9,10R 4/2,66,25,10,6,6,7,
+LOT,2.3,2,32.8,5,10R 6/2,90,10,0,9,7,9,
+LOT,2.4,7,60,6,10R 6/1,98,2,0,8,6,7,
+LOT,2.5,15,60,4,10R 5/3,70,30,0,9,7,9,
+LOT,2.6,0,60,6,10R 8/2,98,2,0,3,3,3,mostly cement. measurements not taken in center of plot
+Park,1.1,2,26,6,10YR 3V 2C,70,16,14,1,1,1,Shaded
+Park,1.2,3,2,8,7.5YR 4V 1C,54,38,8,1,1,0,Exposed
+Park,1.3,1,60,8,10YR 4V 2C,30,68,2,2,1,25,"Exposed, ant hills"
+Park,1.4,0,60,8,5YR 5V 2C,40,58,2,2,2,5,Exposed
+Park,1.5,1,13,7,5Y 4V 1C,40,55,5,3,1,1,Exposed
+Park,1.6,1,19,6,7.5YR 4V 2C,60,25,15,1,0,0,Shaded
+PARK,2.1,1,21.2,12.8,10R 5/2,97,3,0,6,3,13,
+PARK,2.2,7,10.7,10,10R 6/2,50,45,5,4,2,22,
+PARK,2.3,3,30.8,5.2,10R 6/3,100,0,0,3,1,6,
+PARK,2.4,0,2.9,7.1,10R 5/3,95,5,0,6,2,6,fungus present 
+PARK,2.5,2,0.8,5,10R 4/2,90,10,0,6,3,23,
+PARK,2.6,1,1.8,10.3,10R 4/2,85,15,0,9,5,20,"3 ants hills clearly underground were present
+fungus present "

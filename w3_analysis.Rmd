@@ -1,0 +1,76 @@
+---
+title: "w3_analysis"
+author: "Ben"
+date: "9/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(janitor)
+library(ggrepel)
+library(gt)
+library(grid)
+
+```
+
+```{r}
+urban <-read_csv("./w3/data/urban_data.csv")
+```
+```{r}
+#clean names
+urban <-  clean_names(urban)
+```
+
+```{r find values needing cleaning}
+#find unique values to see if value coding shoudl be corrected
+sapply(urban, unique)
+#looks like only the site neds to be fixed
+```
+
+```{r clean site names}
+#clean site names
+urban_tidy <- urban %>%
+  mutate(site = case_when(site == "LOT" ~ "lot",
+                              site == "Lot" ~ "lot",
+                              site == "Park" ~ "park",
+                              site == "PARK" ~ "park"))
+
+```
+1.	Include figures to link each 
+
+
+- independent variable 
+    (infiltration, 
+    litter, 
+    depth of soil O-horizon (cm), 
+    soil color (based on Munsell chart), 
+    heterogeneity of cover classes) 
+  to each 
+  dependent variable 
+    (number of unique species of flora, 
+    number of individuals and 
+    unique species of fauna).
+
+Discussion – include discussion of the following questions: 
+
+1.	How do floral and faunal communities differ between the two study sites?
+2.	What variables best explain floral diversity?
+3.	What variables best describe faunal abundance and diversity?
+4.	What limitations are there of our research design?  How could it be improved?
+
+
+```{r}
+names(urban_tidy)
+
+urban_tidy %>%
+  ggplot(aes(y =flora_number_spp))+
+  geom_point(x = infiltration_sec_values_60_are_actualy_60 )
+
+
+
+```
+
