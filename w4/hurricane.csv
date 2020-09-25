@@ -1,0 +1,271 @@
+Site (H/C),Plot #,Genus,Standing / Fallen,"Azimuth
+(degrees)",dbh (cm or SAP),"Substrate (G, L, P, M)",Notes
+H,1,Maple,Standing,,4.6,M,
+H,1,Maple,Standing,,4.6,L,
+H,1,Beech,Standing,,4.7,G,
+H,1,Beech,Standing,,4.8,G,Dead
+H,1,Maple,Standing,,5.2,M,
+H,1,Maple,Standing,,5.6,G,
+H,1,Beech,Standing,,6.3,L,
+H,1,Beech,Standing,,6.6,G,
+H,1,Beech,Standing,,6.8,L,
+H,1,Unknown,Fallen,75,8,,Decay Class IV
+H,1,Maple,Standing,,8.4,M,
+H,1,Beech,Standing,,9.5,G,
+H,1,Unknown,Fallen,180,13.6,,Decay Class IV
+H,1,Unknown,Fallen,120,18.2,,Decay Class II
+H,1,Oak,Standing,,43.2,G,
+H,1,Oak,Standing,,50,G,
+H,1,Unknown,Fallen,329,Unknown,,Decay Class IV
+H,1,Unknown,Fallen,229,Unknown,,
+H,1,Unknown,Fallen,180,Unknown,,Decay Class IV
+H,2,Pine,F,NE (50),4.4,N/A,
+H,2,Maple,S,N/A,4.5,G,
+H,2,Maple,S,N/A,4.7,G,
+H,2,Elm,S,N/A,4.9,M (rock),
+H,2,Maple,S,N/A,5.5,G,
+H,2,Maple,F,SW (225),5.5,N/A,
+H,2,Elm,S,N/A,5.8,G,
+H,2,Maple,S,N/A,5.8,G,
+H,2,Maple,S,N/A,6.8,L,
+H,2,Maple,S,N/A,7.3,L,
+H,2,Maple,S,N/A,7.5,G,
+H,2,Elm,S,N/A,9,M,
+H,2,Maple,S,N/A,9.9,G,
+H,2,Unknown,F,NE (45),13,N/A,
+H,2,Unknown,F,SW (205),17,N/A,
+H,2,Oak,S,N/A,51.45,G,
+H,3,WP,F,115° SE,6.5,G,
+H,3,RM,S,,7,M,
+H,3,B,S,,7,M,
+H,3,B,S,,7.8,M,
+H,3,OAK,S,,8,G,
+H,3,RM,S,,8.3,M,
+H,3,RM,S,,8.6,M,
+H,3,B,S,,9,G,
+H,3,WP,S,,12.4,G,
+H,3,B,S,,12.5,G,
+H,3,WP,S,,17.4,G,
+H,3,WP,S,,18,G,
+H,3,B,S,,20,M,
+H,3,WP,S,,23,G,
+H,4,RM,S,,6.9,G,
+H,4,RM,S,,7.8,G,
+H,4,RM,S,,8,M,
+H,4,WP,S,,8.9,G,
+H,4,RM,S,,9.5,G,
+H,4,OAK,S,,10.75,G,
+H,4,RM,F,165° S,17,M,
+H,4,OAK,S,,19,G,
+H,4,SM,S,,19.5,M,
+H,4,WP,S,,27.5,M,
+H,11,Birch,S,,8.7,L,
+H,11,Maple,S,,8.8,L,
+H,11,Birch,S,,10.8,G,
+H,11,Oak,S,,12,L,
+H,11,Maple,S,,14.4,G,
+H,11,Oak,S,,32.5,G,
+H,11,Oak,S,,84,G,
+H,11,Pine,F,290,,,
+H,11,Pine,F,270,,,
+H,11,Pine,F,300,,,
+H,11,Pine,F,140,,,
+H,21,Maple,s,-,4.4,g,-
+H,21,Pine,s,-,4.4,g,-
+H,21,Maple,s,-,4.6,g,-
+H,21,Pine,s,-,5,g,-
+H,21,Pine,s,-,5.5,g,Dead
+H,21,Elm,s,-,5.7,l,-
+H,21,Pine,s,-,5.9,g,-
+H,21,Pine,s,-,6.4,g,Dead
+H,21,Hickory,f,334,6.5,g,-
+H,21,Pine,f,88,6.7,g,New
+H,21,Pine,s,-,7.2,g,-
+H,21,Maple,s,-,7.7,g,-
+H,21,Pine,s,-,8.6,g,-
+H,21,Pine,s,-,10.2,p,-
+H,21,Elm,s,-,11.2,g,-
+H,21,Oak,s,-,11.6,m,-
+H,21,Hickory,f,334,16,g,Parts that broke
+H,21,Hickory,f,335,16,g,Off Bigger Tree
+H,21,Hickory,f,310,16,g,"Fell into plot, new"
+H,21,Hickory,f,312,26.2,g,Part of standing tree
+H,21,Hickory,s,-,28.6,g,Also has dead section
+H,21,Maple,s,-,33.5,m,-
+H,21,Hickory,f,345,41,g,-
+H,21,Pine,f,330,45,g,-
+H,31,Birch,S,------,5.25,L,
+H,31,Birch,S,------,6,L,
+H,31,Maple,S,------,9,L,
+H,31,Maple,S,------,9.5,G,
+H,31,Hickory,S,------,11,G,
+H,31,Birch,F,290,11.75,G,"Class II, Recent"
+H,31,Maple,S,------,12.5,G,
+H,31,Birch,F,320,13,G,"Class II, Recent"
+H,31,Maple,S,------,13.5,G,
+H,31,Birch,F,340,14,G,"Class III, Recent"
+H,31,Maple,S,------,14.5,M,Dead/ Class III
+H,31,Maple,S,------,14.5,G,
+H,31,Maple,S,------,15.25,L,
+H,31,Birch,S,------,17,P,Dead Snag/ Class III
+H,31,Maple,S,------,19.5,M,
+H,31,Pine,S,------,37.5,G,
+H,31,Maple,F,330,------,L,"Class IV, 1938"
+H,31,Oak,F,310,------,G,"Class III, Recent"
+H,31,Pine,F,300,------,L,"Class IV, 1938"
+H,31,Pine,F,290,------,L,"Class IV, 1938"
+H,31,Pine,F,270,------,L,"Class IV, 1938"
+H,31,Pine,F,340,------,L,"Class IV, 1938"
+H,201,hornbeam,s,na,7.1,m,
+H,201,hornbeam,s,na,4,m,
+H,201,birch,s,na,9.4,m,
+H,201,oak,s,na,18.5,g,
+H,201,birch,s,na,28,m,dead standing
+H,201,birch,s,na,36.9,m,
+H,201,oak,s,na,34.7,m,
+H,201,oak,s,na,28.6,m,
+H,201,pine,f,350,10,m,
+H,201,birch,f,118,15.8,m,
+H,201,pine,f,270,18,m,
+H,201,birch,f,304,8.3,p,
+H,202,Oak,S,,39.3,M,
+H,202,Oak,S,,36.5,M,
+H,202,Maple,S,,6,M,
+H,202,Birch,S,,7.8,L,
+H,202,Birch,S,,7.5,G,
+H,202,Maple,S,,7.5,M,
+H,202,Birch,S,,6.2,M,
+H,202,Birch,S,,5,M,
+H,202,Birch,S,,5,M,
+H,202,Oak,F,270,4,L,
+H,202,Oak,F,270,4.8,M,
+H,203,Birch,S,,12.4,L,
+H,203,Birch,S,,8,L,
+H,203,Birch,S,,4,M,
+H,203,Birch,S,,4.3,L,
+H,203,Oak,S,,36.8,M,
+H,203,Birch,S,,6.5,L,
+H,203,Birch,S,,5,M,
+H,203,Bir ch,S,,4.1,M,
+H,203,Birch,S,,5.5,M,
+H,203,Birch,S,,8.2,M,
+H,203,Birch,S,,4.3,M,
+H,203,Birch,S,,5.2,M,
+H,203,Oak,S,,44.2,M,
+H,203,Birch,S,,55,M,
+H,203,Birch,S,,7.6,L,
+H,203,Birch,S,,5.5,M,
+H,203,Birch,S,,7.5,L,
+H,203,Maple,S,,4,G,
+H,203,Birch,S,,6.3,M,
+H,203,Maple,S,,4.3,M,
+H,203,Pine,S,,13,M,
+H,203,Unknown,F,160,5.5,M,
+H,203,Pine,F,140,5.7,M,
+H,203,Birch,S,,4,M,
+H,203,Birch,S,,4.1,M,
+H,203,Maple,S,,10,M,
+H,203,Maple,S,,14.1,L,
+H,203,Birch,S,,7.8,M,
+H,203,Pine,S,,25.5,L,
+H,203,Maple,S,,8.1,G,
+H,203,Maple,S,,38,G,
+H,203,Pine,S,,4.2,M,
+H,203,Maple,S,,9.1,M,
+H,203,Oak,S,,4.5,G,
+H,203,Oak,F,145,8.1,G,
+C,1,Maple,Standing,,6.4,G,
+C,1,Pine,Standing,,75.5,G,
+C,1,Pine,Standing,,78.1,G,
+C,1,Beech,Standing,,13.5,M,
+C,1,Pine,Fallen,105,,,Decay Class III
+C,1,Maple,Standing,,6.5,G,
+C,1,Beech,Standing,,7.3,G,
+C,1,Birch,Fallen,275,,,Decay Class IV
+C,1,Birch,Standing,,20.3,M,
+C,2,Beach,S,,23.75,M,"RM stands for red maple, SM stands for sugar maple, WP stands for white pine, YB stands for yellow birch"
+C,2,WP,S,,74,G,
+C,2,SM,S,,5.75,G,
+C,2,WP,S,,63,G,
+C,2,SM,S,,10.5,G,
+C,2,Beach,S,,16,G,
+C,2,WP,F,127°5 E,24,G,
+C,2,Beach,S,,60,G,
+C,2,WP,S,,70,G,
+C,2,WP,S,,23,G,Dead standing
+C,2,Beach,S,,8,L,Dead standing
+C,2,PB,F,247° W,9,G,
+C,3,Pine,S,N/A,57.5,G,
+C,3,Pine,S,N/A,47.2,M,
+C,3,Pine,S,N/A,71.7,M,
+C,3,Pine,S,N/A,32.4,G,
+C,3,Birch,S,N/A,10.5,G,
+C,3,Beech,S,N/A,23.7,G,
+C,3,Birch,F,W (281),9.9,N/A,
+C,3,Pine,F,E (93),19,N/A,
+C,11,Birch,S,,21,G,
+C,11,Birch,S,,18.8,G,
+C,11,Maple,S,,8.2,G,
+C,11,Pine,S,,75,G,
+C,11,Pine,S,,49.6,G,
+C,21,Dead?,s,-,5.7,g,Dead
+C,21,Elm,s,-,10.5,g,-
+C,21,Elm,s,-,20.7,g,-
+C,21,Elm,s,-,10,g,-
+C,21,Pine,s,-,55.7,g,-
+C,21,Pine,s,-,69,g,-
+C,21,Pine,s,-,45.5,g,-
+C,21,Pine,s,-,33.4,g,-
+C,21,Pine,f,111,23,g,New
+C,21,Pine,f,50,11,g,-
+C,21,Pine,f,260,19,g,-
+C,31,Birch,S,------,SAP,G,
+C,31,Birch,S,------,SAP,G,
+C,31,Birch,S,------,SAP,G,
+C,31,Birch,S,------,SAP,G,
+C,31,Hickory,F,240,------,L,Class IV
+C,31,Hickory,F,30,------,L,Class IV
+C,31,Maple,F,20,------,L,Class IV
+C,31,Maple,S,------,22,G,Snag
+C,31,Maple,S,------,SAP,G,
+C,31,Maple,S,------,SAP,G,
+C,31,Maple,S,------,SAP,G,
+C,31,Maple,S,------,SAP,G,
+C,31,Oak,F,180,------,L,Class IV
+C,31,Pine,F,340,------,L,Class IV
+C,31,Pine,F,290,------,L,Class IV
+C,31,Pine,F,280,------,L,Class IV
+C,31,Pine,S,------,80.5,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+C,31,Pine,S,------,SAP,G,
+c,201,pine,s,na,60,g,
+c,201,pine,s,na,76.1,g,
+c,201,birch,s,na,13,g,
+c,201,pine,s,na,56.8,g,
+c,201,pine,s,na,56.8,g,
+c,201,beech,s,na,25.2,g,
+c,201,unknown,s,na,9.9,g,dead standing
+c,201,birch,f,273,11,g,
+c,202,pine,s,na,71,g,
+c,202,pine,s,na,76,g,
+c,202,oube,s,na,9,g,
+C,203,Birch,S,,15.7,G,
+C,203,Pine,S,,62.5,G,
+C,203,Pine,S,,62.3,G,
+C,203,Pine,S,,72.4,G,
+C,203,Birch,S,,16.7,G,
+C,203,Maple,S,,4.6,G,
+C,203,Maple,S,,5.9,G,
+C,203,Pine,F,240,9,G,
+C,203,Unknown,F,90,26,G,
+C,204,Birch,F,140,12.6,G,
+C,204,Birch,S,,8.1,G,
+C,204,Pine,S,,60,G,
+C,204,Pine,S,,59.1,G,
+C,204,Birch ,S,,4.5,M,
+C,204,Maple,F,,5,G,

@@ -14,6 +14,7 @@ library(janitor)
 library(ggrepel)
 library(gt)
 library(grid)
+library(broom)
 
 ```
 
@@ -40,6 +41,106 @@ urban_tidy <- urban %>%
                               site == "PARK" ~ "park"))
 
 ```
+
+```{r create two seperate data sets for lm}
+
+lot <- urban_tidy %>% filter(site == "lot")
+
+park <- urban_tidy %>% filter(site == "park")
+```
+
+```{r get names of numeric variables for lm}
+v_names <- names(select_if(urban_tidy, is.numeric))
+```
+
+```{r}
+#models <- lapply(v_names, function(x) {
+   # lm(substitute(read ~ i, list(i = as.name(x))), data = hsb2)
+#})
+```
+
+varlist <- names(hsb2)[8:11]
+
+models <- lapply(varlist, function(x) {
+    lm(substitute(read ~ i, list(i = as.name(x))), data = hsb2)
+})
+
+## look at the first element of the list, model 1
+models[[1]]
+```{r example code i try to copy }
+v_names
+```
+```{r}
+#lot and flora
+lm(data = lot, lot$flora_number_spp ~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary
+  
+```
+```{r}
+#park and flora
+lm(data = park, flora_number_spp ~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary()
+
+```
+
+```{r}
+#park and fauna species
+lm(data = park,  park$fauna_number_spp~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary()
+```
+
+```{r}
+#park and fauna individuals
+lm(data = park,  park$fauna_number_individuals_values_25_are_actually_above_25~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary()
+
+```
+
+```{r}
+#lot and fauna species
+lm(data = lot,  lot$fauna_number_spp~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary()
+```
+
+```{r lms }
+
+#lot and fauna individuals
+lm(data = lot,  lot$fauna_number_individuals_values_25_are_actually_above_25~ 
+     debris_number +
+     infiltration_sec_values_60_are_actualy_60 +
+     o_horizon_cm_values_1_are_actually_below_1 + 
+     cover_class_1_percent + cover_class_2_percent +
+     cover_class_3_percent ) %>%
+  summary()
+
+
+```
+
 1.	Include figures to link each 
 
 
@@ -72,47 +173,85 @@ flora + heterogeneity of cover classes
 
 
 ```{r flora + infiltration}
-n <- names(urban_tidy)
+
 
 urban_tidy %>%
-  ggplot(aes(y =flora_number_spp,x = infiltration_sec_values_60_are_actualy_60))+
-  geom_point( )
-
+  ggplot(aes(y =flora_number_spp,
+             x = infiltration_sec_values_60_are_actualy_60, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+
+  labs(x = "Infiltration (sec) [Values = 60 actually exceeded 60] ", y = "Flora number of unique species")
+ggsave("w3/flora_infiltration.png")
 
 
 ```
 
 flora + litter
 
-```{ flotra + litter}
+```{r flotra + litter}
 urban_tidy %>%
   ggplot(aes(y =flora_number_spp,
-  x = debris_number))+
+  x = debris_number, color = site))+
   geom_point( ) + 
-  geom_smooth()
+  geom_smooth(method = "lm")+
+  labs(x = "# of debris", y = "Flora number of unique species")
+ggsave("w3/flora_debris.png")
 
 ```
 flora + soil depth
 ```{r flora + soil depth}
 urban_tidy %>%
   ggplot(aes(y =flora_number_spp,
-  x = o_horizon_cm_values_1_are_actually_below_1))+
-  geom_point( ) + 
-  geom_smooth()
-
+  x = o_horizon_cm_values_1_are_actually_below_1, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+
+  labs(x = "depth of soil O-horizon (cm) [values = 1, are actually below 1] ", y = "Flora number of unique species")
+ggsave("w3/flora_soildepth.png")
+urban_tidy
 ```
+
 flora + soil color
-
-```{r}
-
+```{r flora + soil color}
+urban_tidy %>%
+  ggplot(aes(y =flora_number_spp,
+    x = soil_color_munsell, 
+             fill = site))+
+  geom_bar(sta ="identity")+ 
+  coord_flip()+ 
+  labs(x = "Soil color (munsell)", y= "# of unique flora species")
+ggsave("w3/flora_sc.png")
 ```
 flora + heterogeneity of cover classes - not sure how to figure this out. NEED TO DO SOME TRANSFORMATION
 ```{r flora + heterogeneity of cover classes}
 urban_tidy %>%
   ggplot(aes(y =flora_number_spp,
-  x = o_horizon_cm_values_1_are_actually_below_1))+
-  geom_point( ) + 
-  geom_smooth()
+  x = cover_class_1_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")
+```
+```{r covr class 2flora }
+urban_tidy %>%
+  ggplot(aes(y =flora_number_spp,
+  x = cover_class_2_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+labs(x = "% Cover class 2", y = "# of unique species of flora")
+ggsave("w3/floraclass2.png")
+
+
+urban_tidy %>%
+  ggplot(aes(y =flora_number_spp,
+  x = cover_class_3_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+labs(x = "% Cover class 3", y = "# of unique species of flora")
+ggsave("w3/floraclass3.png")
+```
+```{r}
+
 ```
 
 ## fauna number
@@ -121,16 +260,22 @@ fauna + litter
 fauna + soil depth
 fauna + soil color
 fauna + heterogeneity of cover classes
+```{r}
+
+
+```
 
 
 ```{r fauna + infiltration}
-n <- names(urban_tidy)
+
 
 urban_tidy %>%
-  ggplot(aes(y =fauna_number_spp,x = infiltration_sec_values_60_are_actualy_60))+
+  ggplot(aes(y =fauna_number_spp,x = infiltration_sec_values_60_are_actualy_60, 
+             color = site))+
   geom_point( )+
-  geom_smooth()
-
+  geom_smooth(method = "lm")+ 
+  labs(x = "Infiltration (sec) [Values = 60 actually exceeded 60] ", y= "# of unique fauna species")
+ggsave("w3/faunasp_infiltration.png")
 
 
 ```
@@ -141,30 +286,166 @@ fauna + litter
 
 urban_tidy %>%
   ggplot(aes(y =fauna_number_spp,
-  x = debris_number))+
-  geom_point( ) + 
-  geom_smooth()
+  x = debris_number, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+ 
+  labs(x = "debirs #", y= "# of unique fauna species")
+ggsave("w3/faunasp_debris.png")
 
 ```
-fauna + soil depth
+fauna species + soil depth
 ```{r fauna + soil depth}
 urban_tidy %>%
   ggplot(aes(y =fauna_number_spp,
-  x = o_horizon_cm_values_1_are_actually_below_1))+
-  geom_point( ) + 
-  geom_smooth()
-
+  x = o_horizon_cm_values_1_are_actually_below_1, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+
+  labs(x = "depth of soil O-horizon (cm)", y = "# of unique Fauna species")
+ggsave("w3/faunasp_soildepth.png")
 ```
 fauna + soil color
 
-```{r}
-
-```
-fauna + heterogeneity of cover classes - not sure how to figure this out. NEED TO DO SOME TRANSFORMATION
-```{r flora + heterogeneity of cover classes}
+```{r fauna species and soil color }
 urban_tidy %>%
   ggplot(aes(y =fauna_number_spp,
-  x = o_horizon_cm_values_1_are_actually_below_1))+
-  geom_point( ) + 
-  geom_smooth()
+    x = soil_color_munsell, 
+             fill = site))+
+  geom_bar(sta ="identity")+ 
+  coord_flip()+ 
+  labs(x = "Soil color (munsell)", y= "# of unique fauna species")
+ggsave("w3/fauna_sc.png")
 ```
+fauna + heterogeneity of cover classes - not sure how to figure this out. NEED TO DO SOME TRANSFORMATION
+```{r fauna diversity + heterogeneity of cover classes}
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_spp,
+  x = cover_class_1_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+
+  labs(x = "% Cover class 1", y = "# of unique species of fauna")
+ggsave("w3/faunaclass1.png")
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_spp,
+  x = cover_class_2_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+
+  labs(x = "% Cover class 2", y = "# of unique species of fauna")
+ggsave("w3/faunaclass2.png")
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_spp,
+  x = cover_class_3_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+
+  labs(x = "% Cover class 3", y = "# of unique species of fauna")
+ggsave("w3/faunaclass3.png")
+
+```
+
+```{r}
+urban_tidy %>% group_by(soil_color_munsell)%>%
+  summarise(count = n())
+```
+
+## number of individual of fauna
+fauna infiltration
+```{r fauna infiltration}
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,x = infiltration_sec_values_60_are_actualy_60, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+ 
+  labs(x = "Infiltration (sec) [Values = 60 actually exceeded 60] ", y= "# of fauna individuals")
+ggsave("w3/fauna_ind_infiltration.png")
+
+```
+
+
+
+fauna + soil depth
+```{r fauna + soil depth}
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+  x = o_horizon_cm_values_1_are_actually_below_1, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .3)+
+  labs(x = "depth of soil O-horizon (cm)", y = "# of Fauna individuals")
+ggsave("w3/fi_soil.png")
+
+```
+
+
+```{r fauna + litter}
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+  x = debris_number, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+ 
+  labs(x = "debris #", y= "# of Fauna individuals")
+ggsave("w3/fi_debris.png")
+
+```
+
+```{r fauna individuals and soil color }
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+    x = soil_color_munsell, 
+             fill = site))+
+  geom_bar(sta ="identity")+ 
+  coord_flip()+ 
+  labs(x = "Soil color (munsell)", y= "# of fauna individuals")
+ggsave("w3/fi_sc.png")
+```
+
+```{r fauna diversity + heterogeneity of cover classes}
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+  x = cover_class_1_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+
+  labs(x = "% Cover class 1", y = "# of fauna individuals")
+ggsave("w3/ficlass1.png")
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+  x = cover_class_2_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm", alpha = .2)+
+  labs(x = "% Cover class 2", y = "# of fauna individuals")
+ggsave("w3/ficlass2.png")
+
+urban_tidy %>%
+  ggplot(aes(y =fauna_number_individuals_values_25_are_actually_above_25,
+  x = cover_class_3_percent, 
+             color = site))+
+  geom_point( )+
+  geom_smooth(method = "lm")+
+  labs(x = "% Cover class 3", y = "# of fauna individuals")
+ggsave("w3/ficlass3.png")
+
+```
+
+```{r}
+summary(park)
+```
+```{r}
+summary(lot)
+```
+```{r}
+n <- urban_tidy %>% group_by(site) %>%names()
+  ggplot(data = urban_tidy)+
+  boxplot(aes(x = n))
+```
+
