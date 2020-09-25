@@ -39,8 +39,41 @@ treez <- treez %>% mutate (degrees = parse_number(azimuth_degrees), dbh_cm = par
 
 liltrees <- liltrees %>% mutate (sap_count = parse_number(sapling_count), seedlin_count = parse_number(seedling_count))
 ```
+
 ```{r make consistent values}
 sapply(treez, unique)
+
+
+treez %>% group_by(genus) %>% summarise( n = n())
+
+treez <- treez %>% mutate( genus = recode(genus,
+                                 B = "unknown",
+                                 Beach = "beech",
+                                 Beech= "beech", 
+                                 "Bir ch" = "birch",
+                                 Birch = "birch",
+                                 "Dead?" = "unknown",
+                                 "Oak" = "oak",
+                                 "OAK" = "oak",
+                                 oube = "unknown",
+                                 "PB" = "birch",
+                                 "Pine" = "pine",
+                                 RM = "maple",
+                                 SM = "maple",
+                                 Maple = "maple",
+                                 Unknown = "unknown",
+                                 WP = "pine"
+                                 ))
+
+
+treez$standing_fallen %>% unique()
+
+#recode standing fallen variable 
+treez <- treez %>% mutate(standing_fallen = recode(standing_fallen,
+                                          "F" = "Fallen",
+                                          "f" = "Fallen",
+                                          "S" = "Standing",
+                                          "s" = "Standing"))
 ```
 
 
@@ -48,4 +81,3 @@ sapply(treez, unique)
 a <- c("1","$1","3*", "2sw")
 parse_number(a)
 ```
-
