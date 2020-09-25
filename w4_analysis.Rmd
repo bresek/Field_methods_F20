@@ -76,7 +76,7 @@ treez <- treez %>% mutate(standing_fallen = recode(standing_fallen,
                                           "s" = "Standing"))
 
 treez <- treez %>% mutate(site_h_c = recode(site_h_c,
-                                          c = "C",
+                                          c = "Control Site",
                                           C = "Control Site",
                                           H = "Hurricane Site"))
 
@@ -85,8 +85,22 @@ treez <- treez %>% mutate(site_h_c = recode(site_h_c,
 	2. azimuths of fallen trees in the control site (graph)
 
 ```{r}
-treez %>%
+treez %>% filter( standing_fallen == "Fallen") %>%
   ggplot(aes(x = degrees, fill = genus)) +
-  geom_histogram()+facet_wrap(~site_h_c)
+  geom_histogram(binwidth = 12)+facet_wrap(~site_h_c)
+```
+at the hurricane site, genus of fallen trees as a percentage of all fallen trees
+
+```{r}
+fallen_ratio <- treez %>%
+  group_by(site_h_c, genus, standing_fallen) %>%
+  summarise(count = n()) %>%
+  mutate(total = sum(count),
+         prop = count/total)
+```
+
+```{r}
+treez %>% filter(standing_fallen == "Fallen" ) %>%
+  ggplot(aes( x = site_h_c, fill = genus))+ geom_bar()
 ```
 
