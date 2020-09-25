@@ -92,11 +92,21 @@ treez %>% filter( standing_fallen == "Fallen") %>%
 at the hurricane site, genus of fallen trees as a percentage of all fallen trees
 
 ```{r}
-fallen_ratio <- treez %>%
-  group_by(site_h_c, genus, standing_fallen) %>%
-  summarise(count = n()) %>%
-  mutate(total = sum(count),
-         prop = count/total)
+
+  
+  count_genus_site_status <- treez %>%
+  group_by(site_h_c, standing_fallen, genus) %>%
+  summarise(count = n()) 
+
+tot <- count_genus_site_status %>%
+  group_by(site_h_c, standing_fallen)%>%
+  summarise(toatl = sum(count))
+  
+v4 <- left_join(count_genus_site_status, tot, by = c("site_h_c", "standing_fallen"))
+
+v4 %>% mutate( prop = )
+
+fallen_ratio
 ```
 
 ```{r}
