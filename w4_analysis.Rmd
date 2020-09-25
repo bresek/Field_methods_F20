@@ -74,10 +74,19 @@ treez <- treez %>% mutate(standing_fallen = recode(standing_fallen,
                                           "f" = "Fallen",
                                           "S" = "Standing",
                                           "s" = "Standing"))
-```
 
+treez <- treez %>% mutate(site_h_c = recode(site_h_c,
+                                          c = "C",
+                                          C = "Control Site",
+                                          H = "Hurricane Site"))
+
+```
+	1. azimuths of fallen trees in the hurricane site (graph)
+	2. azimuths of fallen trees in the control site (graph)
 
 ```{r}
-a <- c("1","$1","3*", "2sw")
-parse_number(a)
+treez %>%
+  ggplot(aes(x = degrees, fill = genus)) +
+  geom_histogram()+facet_wrap(~site_h_c)
 ```
+
