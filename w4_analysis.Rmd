@@ -14,6 +14,7 @@ library(ggrepel)
 library(gt)
 library(grid)
 library(broom)
+library(lemon)
 
 ```
 
@@ -95,26 +96,62 @@ treez %>% filter( standing_fallen == "Fallen") %>%
 ```
 at the hurricane site, genus of fallen trees as a percentage of all fallen trees
 
+```{r find proportions }
+#fallen at hurricane 
+fhp <- 
+  treez %>%
+  filter(site_h_c == "Hurricane Site") %>%
+  filter(standing_fallen == "Fallen") %>%
+  group_by(genus) %>%
+  summarise(count = n())%>%
+  mutate(Proportion = (count/sum(count)) %>% signif(digits = 2))
+
+#standing hurricane 
+
+shp <-
+  treez %>%
+  filter(site_h_c == "Hurricane Site") %>%
+  filter(standing_fallen == "Standing") %>%
+  group_by(genus) %>%
+  summarise(count = n())%>%
+  mutate(Proportion = (count/sum(count)) %>% signif(digits = 2))
+
+#control fallen
+fcp <- 
+  treez %>%
+  filter(site_h_c == "Control Site") %>%
+  filter(standing_fallen == "Fallen") %>%
+  group_by(genus) %>%
+  summarise(count = n())%>%
+  mutate(Proportion = (count/sum(count)) %>% signif(digits = 2))
+
+#Control standing
+scp <- 
+  treez %>%
+  filter(site_h_c == "Control Site") %>%
+  filter(standing_fallen == "Standing") %>%
+  group_by(genus) %>%
+  summarise(count = n())%>%
+  mutate(Proportion = 
+           (count/sum(count)) %>% signif(digits = 2))
+
+```
+density (number per hectare) of seedlings, saplings, and trees of each genus growing on ground, fallen log, pit, or tip up mound in the affected site (graph)
 ```{r}
+treez %>% 
+  group_by(substrate_g_l_p_m)%>%
+  summarise(numplot = length(unique(plot_number)))
 
-  
-  count_genus_site_status <- treez %>%
-  group_by(site_h_c, standing_fallen, genus) %>%
-  summarise(count = n()) 
 
-tot <- count_genus_site_status %>%
-  group_by(site_h_c, standing_fallen)%>%
-  summarise(toatl = sum(count))
-  
-v4 <- left_join(count_genus_site_status, tot, by = c("site_h_c", "standing_fallen"))
-
-v4 %>% mutate( prop = )
-
-fallen_ratio
+unique(treez$plot_number)
 ```
 
+
+
+
+
 ```{r}
-treez %>% filter(standing_fallen == "Fallen" ) %>%
-  ggplot(aes( x = site_h_c, fill = genus))+ geom_bar()
+treez  %>%
+  ggplot(aes( x = site_h_c, fill = genus))+ geom_bar()+ facet_wrap(~standing_fallen, ncol =1)
 ```
 
