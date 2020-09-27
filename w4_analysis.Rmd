@@ -80,7 +80,24 @@ treez <- treez %>% mutate(site_h_c = recode(site_h_c,
                                           c = "Control Site",
                                           C = "Control Site",
                                           H = "Hurricane Site"))
+t <- sapply(treez, unique)
+t$substrate_g_l_p_m
 
+treez %>% 
+  group_by(substrate_g_l_p_m) %>%
+  summarise(count = n())
+
+treez <-  treez %>% mutate(substrate_g_l_p_m = recode(substrate_g_l_p_m,
+                          "N/A" = NULL,
+                          "M (rock)" = "M",
+                          "g" = "G",
+                          l = "L",
+                          m = "M",
+                          p = "P"
+                          
+
+                     
+                   )) 
 ```
 	1. azimuths of fallen trees in the hurricane site (graph)
 	2. azimuths of fallen trees in the control site (graph)
@@ -138,12 +155,23 @@ scp <-
 ```
 density (number per hectare) of seedlings, saplings, and trees of each genus growing on ground, fallen log, pit, or tip up mound in the affected site (graph)
 ```{r}
-treez %>% 
+h_ha_by_substrate <-
+  treez %>% 
+  filter(site_h_c == "Hurricane Site") %>%
   group_by(substrate_g_l_p_m)%>%
-  summarise(numplot = length(unique(plot_number)))
+  summarise(numplot = length(unique(plot_number))) %>%
+  mutate(ha = ((numplot * 100)/10000))
 
+h_tree_count_by_genus_substrate <- 
+  treez %>% 
+  filter(site_h_c == "Hurricane Site") %>%
+  filter(standing_fallen == "Standing") %>%
+  group_by(substrate_g_l_p_m, genus) %>%
+  summarise(n = n()) 
 
-unique(treez$plot_number)
+h_density <- left_join(tree_count_by_genus_substrate, ha_by_substrate, by = "substrate_g_l_p_m")
+
+density %>% mutate( density = n/ha)
 ```
 
 
