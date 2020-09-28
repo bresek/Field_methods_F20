@@ -181,29 +181,162 @@ h_density %>%
 
 
 ```{r control trees density on substrate}
-h_ha_by_substrate <-
+c_ha_by_substrate <-
   treez %>% 
+  filter(site_h_c == "Control Site") %>%
+  group_by(substrate_g_l_p_m)%>%
+  summarise(numplot = length(unique(plot_number))) %>%
+  mutate(ha = ((numplot * 100)/10000))
+
+c_tree_count_by_genus_substrate <- 
+  treez %>% 
+  filter(site_h_c == "Control Site") %>%
+  filter(standing_fallen == "Standing") %>%
+  group_by(substrate_g_l_p_m, genus) %>%
+  summarise(n = n()) 
+
+c_density <- left_join(c_tree_count_by_genus_substrate, c_ha_by_substrate, by = "substrate_g_l_p_m")
+
+c_density<- c_density %>% mutate( density = (n / ha))
+
+
+c_density %>% 
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity")
+```
+```{r clean seedling sapling data}
+liltrees%>% sapply(unique)
+
+liltrees %>% group_by(genus) %>% summarise( n = n())
+
+liltrees <- liltrees %>% mutate( genus = recode(genus,
+                                          B = "unknown",
+                                          Beach = "beech",
+                                          Beech= "beech",
+                                          BEACH = "beech",
+                                          hb = "hornbeam",
+                                          "hornbea," = "hornbeam",
+                                          "Bir ch" = "birch",
+                                          Birch = "birch",
+                                          "Dead?" = "unknown",
+                                          "Oak" = "oak",
+                                          "OAK" = "oak",
+                                          oube = "unknown",
+                                          "PB" = "birch",
+                                          "Pine" = "pine",
+                                          RM = "maple",
+                                          SM = "maple",
+                                          Maple = "maple",
+                                          Unknown = "unknown",
+                                          WP = "pine"
+))
+
+
+ liltrees$standing_fallen %>% unique()
+
+
+
+liltrees <- liltrees %>% mutate(site_h_c = recode(site_h_c,
+                                            c = "Control Site",
+                                            C = "Control Site",
+                                            H = "Hurricane Site"))
+t <- sapply(liltrees, unique)
+t$substrate_g_l_p_m
+
+liltrees %>% 
+  group_by(substrate_g_l_p_m) %>%
+  summarise(count = n())
+
+liltrees <-  liltrees %>% mutate(substrate_g_l_p_m = recode(substrate_g_l_p_m,
+                                                      "N/A" = NULL,
+                                                      "M (rock)" = "M",
+                                                      "g" = "G",
+                                                      l = "L",
+                                                      m = "M",
+                                                      p = "P"
+                                                      
+                                                      
+                                                      
+)) 
+
+liltrees%>% sapply(unique)
+
+```
+
+```{r}
+liltrees %>% 
   filter(site_h_c == "Hurricane Site") %>%
   group_by(substrate_g_l_p_m)%>%
   summarise(numplot = length(unique(plot_number))) %>%
   mutate(ha = ((numplot * 100)/10000))
 
-h_tree_count_by_genus_substrate <- 
-  treez %>% 
+```
+
+
+```{r hurricane seedling density on substrate}
+lh_ha_by_substrate <-
+  liltrees %>% 
   filter(site_h_c == "Hurricane Site") %>%
-  filter(standing_fallen == "Standing") %>%
+  group_by(substrate_g_l_p_m)%>%
+  summarise(numplot = length(unique(plot_number))) %>%
+  mutate(ha = ((numplot * 100)/10000))
+
+lh_tree_count_by_genus_substrate <- 
+  liltrees %>% 
+  filter(site_h_c == "Hurricane Site") %>%
+ 
   group_by(substrate_g_l_p_m, genus) %>%
-  summarise(n = n()) 
+  summarise(seed_tot = sum(seedlin_count,na.rm = TRUE), sap_tot = sum(sap_count,na.rm = TRUE)) 
 
-h_density <- left_join(h_tree_count_by_genus_substrate, h_ha_by_substrate, by = "substrate_g_l_p_m")
+lh_density <- left_join(lh_tree_count_by_genus_substrate, lh_ha_by_substrate, by = "substrate_g_l_p_m")
 
-h_density<- h_density %>% mutate( density = (n / ha))
+lh_density<- lh_density %>% mutate( sap_density = (sap_tot / ha), seed_density = (seed_tot / ha))
 
 
-h_density %>% 
+lh_density %>% 
   ggplot() +
   geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity")
 ```
+
+```{r hurricane seedling density on substrate}
+ch_ha_by_substrate <-
+  liltrees %>% 
+  filter(site_h_c == "Control Site") %>%
+  group_by(substrate_g_l_p_m)%>%
+  summarise(numplot = length(unique(plot_number))) %>%
+  mutate(ha = ((numplot * 100)/10000))
+
+ch_tree_count_by_genus_substrate <- 
+  liltrees %>% 
+  filter(site_h_c == "Control Site") %>%
+  
+  group_by(substrate_g_l_p_m, genus) %>%
+  summarise(seed_tot = sum(seedlin_count,na.rm = TRUE), sap_tot = sum(sap_count,na.rm = TRUE)) 
+
+ch_density <- left_join(ch_tree_count_by_genus_substrate, ch_ha_by_substrate, by = "substrate_g_l_p_m")
+
+ch_density<- ch_density %>%  mutate( sap_density = (sap_tot / ha), seed_density = (seed_tot / ha))
+
+
+
+```
+
+```{r}
+#join all four density dfs into one df
+
+## add site back into each
+ch_density <- ch_density %>% mutate(site = "control")
+lh_density <- lh_density %>% mutate(site = "hurricane")
+h_density <- h_density %>% mutate(site = "hurricane")
+c_density <- c_density %>% mutate(site = "control")
+
+
+
+rbind(ch_density,lh_density,c_density,h_density) %>%
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity") + facet_wrap(~site)
+```
+
 
 
 
@@ -212,5 +345,6 @@ h_density %>%
 ```{r}
 treez  %>%
   ggplot(aes( x = site_h_c, fill = genus))+ geom_bar()+ facet_wrap(~standing_fallen, ncol =1)
+
 ```
 
