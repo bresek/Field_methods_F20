@@ -103,13 +103,15 @@ treez <-  treez %>% mutate(substrate_g_l_p_m = recode(substrate_g_l_p_m,
 	2. azimuths of fallen trees in the control site (graph)
 
 ```{r}
-c("North")
 
 treez %>% filter( standing_fallen == "Fallen") %>%
   ggplot(aes(x = degrees, fill = genus)) +
   geom_histogram(binwidth = 24)+
   facet_wrap(~site_h_c, ncol = 1)+
-  scale_x_continuous(breaks = c(0, 90, 180, 270, 360), labels = c("North (0)", "East(90)", "South(180)", "West(270)", "North(360)"))+xlab(NULL)
+  scale_x_continuous(breaks = c(0, 90, 180, 270, 360), labels = c("North (0)", "East(90)", "South(180)", "West(270)", "North(360)"))+
+ 
+  scale_y_continuous(breaks = c(2,4,6,8,10))
+ 
 ```
 at the hurricane site, genus of fallen trees as a percentage of all fallen trees
 
@@ -330,11 +332,34 @@ lh_density <- lh_density %>% mutate(site = "hurricane")
 h_density <- h_density %>% mutate(site = "hurricane")
 c_density <- c_density %>% mutate(site = "control")
 
+#join data 
+lil_tree_density <- rbind(ch_density,lh_density)
 
+big_tree_density <- rbind(c_density,h_density)
 
-rbind(ch_density,lh_density,c_density,h_density) %>%
+#tree density
+big_tree_density %>%
   ggplot() +
-  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity") + facet_wrap(~site)
+  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity") +
+  facet_wrap(~site) +
+  labs(x = "Substrate", y = "density (trees / ha)")
+ggsave("figures/treed.png")
+
+
+#sapling density
+lil_tree_density %>%
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = sap_density, fill = genus), stat = "identity") + facet_wrap(~site)+
+  labs(x = "Substrate", y = "density (Saplings / ha)")
+ggsave("figures/sapd.png")
+
+#seedling density
+lil_tree_density %>%
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = seed_density, fill = genus), stat = "identity") + facet_wrap(~site)+
+  labs(x = "Substrate", y = "density (Seedlings / ha)")
+ggsave("figures/seedd.png")
+
 ```
 
 
