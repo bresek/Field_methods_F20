@@ -110,8 +110,9 @@ treez %>% filter( standing_fallen == "Fallen") %>%
   facet_wrap(~site_h_c, ncol = 1)+
   scale_x_continuous(breaks = c(0, 90, 180, 270, 360), labels = c("North (0)", "East(90)", "South(180)", "West(270)", "North(360)"))+
  
-  scale_y_continuous(breaks = c(2,4,6,8,10))
- 
+  scale_y_continuous(breaks = c(2,4,6,8,10)) + 
+  labs(y = "Number of fallen trees", x = ("Azimuth (degrees)"), caption = "Binwidth = 24")
+ ggsave("figures/azimuth.png")
 ```
 at the hurricane site, genus of fallen trees as a percentage of all fallen trees
 
