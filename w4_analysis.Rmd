@@ -154,7 +154,7 @@ scp <-
 
 ```
 density (number per hectare) of seedlings, saplings, and trees of each genus growing on ground, fallen log, pit, or tip up mound in the affected site (graph)
-```{r}
+```{r hurricane trees density on substrate}
 h_ha_by_substrate <-
   treez %>% 
   filter(site_h_c == "Hurricane Site") %>%
@@ -169,9 +169,40 @@ h_tree_count_by_genus_substrate <-
   group_by(substrate_g_l_p_m, genus) %>%
   summarise(n = n()) 
 
-h_density <- left_join(tree_count_by_genus_substrate, ha_by_substrate, by = "substrate_g_l_p_m")
+h_density <- left_join(h_tree_count_by_genus_substrate, h_ha_by_substrate, by = "substrate_g_l_p_m")
 
-density %>% mutate( density = n/ha)
+h_density<- h_density %>% mutate( density = (n / ha))
+
+
+h_density %>% 
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity")
+```
+
+
+```{r control trees density on substrate}
+h_ha_by_substrate <-
+  treez %>% 
+  filter(site_h_c == "Hurricane Site") %>%
+  group_by(substrate_g_l_p_m)%>%
+  summarise(numplot = length(unique(plot_number))) %>%
+  mutate(ha = ((numplot * 100)/10000))
+
+h_tree_count_by_genus_substrate <- 
+  treez %>% 
+  filter(site_h_c == "Hurricane Site") %>%
+  filter(standing_fallen == "Standing") %>%
+  group_by(substrate_g_l_p_m, genus) %>%
+  summarise(n = n()) 
+
+h_density <- left_join(h_tree_count_by_genus_substrate, h_ha_by_substrate, by = "substrate_g_l_p_m")
+
+h_density<- h_density %>% mutate( density = (n / ha))
+
+
+h_density %>% 
+  ggplot() +
+  geom_bar(aes(x = substrate_g_l_p_m, y = density, fill = genus), stat = "identity")
 ```
 
 
