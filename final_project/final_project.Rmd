@@ -1,0 +1,149 @@
+---
+title: "final project biodiversity"
+author: "Ben"
+date: "10/26/2020"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggmap)
+library(tigris)
+library(rnaturalearth)
+library(tidycensus)
+library(rgdal)
+library(sf)
+library(tmap)
+library(lubridate)
+library(vegan)
+ 
+
+```
+
+```{r read in iNaturalist data }
+d <- read_csv("data/in_929.csv",guess_max = 20000)
+sapply(d,class)
+```
+
+```{r select needed columns from iNaturalist }
+d <-
+  d %>%
+  select(id,
+         observed_on,
+         created_at,
+         quality_grade,
+         captive_cultivated,
+         latitude,
+         longitude,
+         positional_accuracy,
+         species_guess,
+         scientific_name,
+         common_name,
+         iconic_taxon_name,
+         taxon_genus_name)
+```
+
+```{r census api key for getting census shapefiles }
+#census_api_key(key = "75eb1a4035ff5768216984592e3501956cdff75e", install = TRUE)
+```
+
+
+```{r read in block groups }
+block <- 
+  block_groups("massachusetts", "worcester")
+```
+
+```{r turn the INaturalist data into an sf object}
+#converts it from df to sf and df
+ds <- st_as_sf(d,coords = c(x = "longitude", y = "latitude"))
+
+#assign  the block group Coordinate refrence system to the inaturalist data 
+st_crs(ds) <- st_crs(block)
+```
+
+```{r add month and year column to ds}
+ds <- ds %>%
+  mutate(month = month(observed_on),
+         year = year(observed_on))%>%
+  dplyr::select(id, month, year, observed_on, everything())
+```
+
+```{r breakdown by taxon type }
+ds %>% group_by(iconic_taxon_name) %>% summarize(obs = length(id)) %>% arrange(desc(obs))
+```
+```{r plot points in block groups}
+ggplot(ds)+
+  geom_sf(data = block, aes())+
+  geom_sf(data = ds, aes(color = iconic_taxon_name))+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)+
+  theme_bw()
+
+ggsave("point.png")
+
+```
+```{r create an object where each row is a inaturalist observation associated with the block group it lies within }
+
+#associate each iNaturalist point with a block group
+p <- st_join(block, ds) %>%
+  group_by(GEOID) %>%
+  summarize(n = length(id))%>%
+  arrange(desc(n))
+
+#filter blocks with enough sample size
+geoid_enough_samples <- 
+  p %>%
+  filter(n  > 30 ) %>%
+  pull(GEOID)
+filtered_blocks_iN <- 
+  st_join(block, ds) %>%
+  group_by(GEOID) %>%
+  dplyr::filter(GEOID %in% geoid_enough_samples)
+
+
+#find block groups without large enough sample size 
+not_enough_obs <-
+  st_join(block, ds) %>%
+  group_by(GEOID) %>%
+  summarize(n = length(id))%>%
+  arrange((n)) %>%
+  filter(n  < 30 ) 
+
+```
+
+
+```{r calculate richness by density for blocks}
+
+b <- filtered_blocks_iN %>%
+  group_by(GEOID) %>%
+  mutate(richness = length(scientific_name)) %>%
+  mutate(richness_density = (richness/ALAND)*1000) %>%
+  mutate(rounded_richness_density = factor( round(richness_density, digits = 3)))%>%
+dplyr::select(GEOID,richness,richness_density, rounded_richness_density, everything())
+
+
+
+```
+
+```{r plot richness density}
+
+  ggplot()+
+  geom_sf(data = b, aes(fill =factor( round(richness_density, digits = 2)))) +  
+  geom_sf(data = not_enough_obs, aes()) +
+  scale_fill_viridis_d(option = "A", "richness density")+ 
+  geom_sf(data = ds, aes(), alpha = .4, color = "white", fill = NA) +
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+```{r plot just density}
+ ggplot()+
+  geom_sf(data = b, aes(fill =factor( round(richness, digits = 2)))) +  
+  geom_sf(data = not_enough_obs, aes()) +
+  scale_fill_viridis_d(option = "A", "richness")+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+```{r}
+
+```
+

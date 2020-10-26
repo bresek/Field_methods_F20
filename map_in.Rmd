@@ -1,0 +1,168 @@
+---
+title: "test final"
+author: "Ben"
+date: "9/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggmap)
+library(tigris)
+library(rnaturalearth)
+library(tidycensus)
+library(rgdal)
+library(sf)
+library(tmap)
+library(lubridate)
+library(vegan)
+```
+
+# Thinking about what I need to do
+So with my iNaturalist data I think I need to apply the GEOID or some sort of identifier for the census block it is in but maybe keep it in a non-spatial format. I need that information and also likely statistics about each block group such as area. Then i can compute the biodiversity metrics for each block group and apply it to the polygons. 
+
+So the only information I need from the block groups is the ID. I should apply that classification to each polygon that falls within it 
+
+
+
+
+```{r}
+d <- read_csv("final_project/data/in_929.csv",guess_max = 20000)
+sapply(d,class)
+```
+```{r}
+d <- d %>% select(id,observed_on, created_at, quality_grade,captive_cultivated,latitude, longitude,positional_accuracy,species_guess, scientific_name, common_name, iconic_taxon_name,taxon_genus_name)
+```
+
+```{r}
+#census_api_key(key = "75eb1a4035ff5768216984592e3501956cdff75e", install = TRUE)
+```
+
+So I think I want to group inaturalist ovservations by census block group. Need to 
+
+```{r}
+
+
+block <- block_groups("massachusetts", "worcester")
+```
+```{r turn the INaturalist data into an sf object}
+#converts it from df to sf and df
+ds <- st_as_sf(d,coords = c(x = "longitude", y = "latitude"))
+
+#assing the block group Coordinate refrence system to the inaturalist data 
+st_crs(ds) <- st_crs(block)
+```
+```{r}
+head(ds)
+```
+
+```{r}
+st_area(block)
+```
+```{r distribution of Inaturalist observation over time}
+ds %>%
+  ggplot(aes(observed_on))+
+  geom_freqpoly(binwidth = 31)
+```
+```{r add month and year column to ds}
+ds <- ds %>% mutate(month = month(observed_on), year = year(observed_on))%>%dplyr::select(id, month, year, observed_on, everything())
+```
+
+should I use year specific observations or just total observations??? 
+Year speciic would be good if i think things have changed much in the last three years 
+
+```{r breakdown of obs per year}
+ds %>% group_by(year) %>% summarize(obs = length(id)) %>% arrange(desc(obs))
+```
+```{r breakdown by taxon type }
+ds %>% group_by(iconic_taxon_name) %>% summarize(obs = length(id)) %>% arrange(desc(obs))
+```
+
+```{r breakdown by taxon type }
+ds %>% group_by(scientific_name) %>% summarize(obs = length(id)) %>% arrange(desc(obs))
+```
+
+
+```{r attempt at joining IN data with block group, then finding total number of obs and mapping it}
+  
+p <- st_join(block, ds) %>% group_by(GEOID) %>% summarize(n = length(id))%>% arrange(desc(n))
+
+# filter out those w
+not_enough_obs <- st_join(block, ds) %>% group_by(GEOID) %>% summarize(n = length(id))%>% arrange((n)) %>% filter(n  < 30 ) 
+
+ggplot(p)+
+  geom_sf(aes(fill = n)) +  
+  geom_sf(data = not_enough_obs, aes())+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+```{r attempt at joining IN data with block group, then finding total number of obs and mapping it}
+  
+obs_density <- st_join(block, ds) %>% group_by(GEOID, scientific_name) %>% mutate(n = length(scientific_name))%>% mutate(obs_dens = n/ALAND)
+
+#try to make blocks with less than 50 obs empty 
+
+ggplot(obs_density)+
+  geom_sf(aes(fill = obs_dens)) +  
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+```{r find which block groups have enough iNaturalist obs}
+
+geoid_enough_samples <- st_join(block, ds) %>% group_by(GEOID) %>% summarize(n = length(id))%>% arrange((n)) %>% filter(n  > 30 ) %>% pull(GEOID)
+
+filtered_blocks_iN <- st_join(block, ds) %>% group_by(GEOID) %>% dplyr::filter(GEOID %in% geoid_enough_samples)
+```
+
+```{r richness of all inaturalist observations }
+a <- filtered_blocks_iN %>% group_by(scientific_name) %>%
+  mutate(n = length(scientific_name))%>%
+  mutate(richness_density = n/ALAND)
+
+
+b <- filtered_blocks_iN %>%
+  group_by(GEOID) %>%
+  mutate(richness = length(scientific_name)) %>%
+  mutate(richness_density = (richness/ALAND)*1000) %>% dplyr::select(GEOID,BLKGRPCE,richness,richness_density, everything())
+
+ ggplot()+
+  geom_sf(data = b, aes(fill = richness_density)) +  
+  geom_sf(data = not_enough_obs, aes()) +
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)+  scale_fill_viridis_c()
+```
+
+
+```{r}
+library(mapview)
+
+mapView(b, zcol = "richness_density") 
+
+```
+
+
+```{r}
+ test_join%>%  
+  ggplot()+
+  geom_sf() + 
+  geom_sf(ds)+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+
+```
+```{r}
+tm_shape(test_join)+
+  tm_polygons()
+```
+
+
+```{r}
+
+  ggplot()+
+  geom_sf(data = test_join) + 
+  geom_sf(data = ds, aes(color = iconic_taxon_name),alpha = .5)+
+    coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+
+
+
