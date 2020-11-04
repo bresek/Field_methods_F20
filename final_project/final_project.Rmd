@@ -17,19 +17,31 @@ library(sf)
 library(tmap)
 library(lubridate)
 library(vegan)
- 
+library(rinat)
+library(raster)
+library(maptools)
+library(rgdal)
+library(parallel)
 
+```
+# read in data  
+
+
+```{r}
+d <- get_inat_obs(quality = "research", geo = TRUE, place_id = 151995, maxresults =  10000 )
+tibble(d)
 ```
 
 ```{r read in iNaturalist data }
-d <- read_csv("data/in_929.csv",guess_max = 20000)
+#d <- read_csv("data/in_929.csv",guess_max = 20000)
+names(d)
 sapply(d,class)
 ```
 
 ```{r select needed columns from iNaturalist }
 d <-
   d %>%
-  select(id,
+  dplyr::select(id,
          observed_on,
          created_at,
          quality_grade,
@@ -40,8 +52,7 @@ d <-
          species_guess,
          scientific_name,
          common_name,
-         iconic_taxon_name,
-         taxon_genus_name)
+         iconic_taxon_name)
 ```
 
 ```{r census api key for getting census shapefiles }
@@ -54,12 +65,17 @@ block <-
   block_groups("massachusetts", "worcester")
 ```
 
+```{r}
+crs(block)
+```
+
 ```{r turn the INaturalist data into an sf object}
 #converts it from df to sf and df
 ds <- st_as_sf(d,coords = c(x = "longitude", y = "latitude"))
 
 #assign  the block group Coordinate refrence system to the inaturalist data 
 st_crs(ds) <- st_crs(block)
+
 ```
 
 ```{r add month and year column to ds}
@@ -71,6 +87,8 @@ ds <- ds %>%
 
 ```{r breakdown by taxon type }
 ds %>% group_by(iconic_taxon_name) %>% summarize(obs = length(id)) %>% arrange(desc(obs))
+
+ds <-ds %>% filter(iconic_taxon_name != "Actinopterygii")
 ```
 ```{r plot points in block groups}
 ggplot(ds)+
@@ -82,6 +100,105 @@ ggplot(ds)+
 ggsave("point.png")
 
 ```
+
+
+# raster version 
+
+point data of observations = ds
+extent = c(-71.9, -71.7), ylim = c(42.2,42.35)
+
+```{r create grid for worcester}
+
+
+#extent
+e <- extent(c(xmin = -71.9, xmax =  -71.7, ymin = 42.2, ymax = 42.35))
+
+r <-
+  raster(x = e,
+       crs = crs(block),
+       vals = NA)
+
+res(r) <- .005
+```
+ 
+ These look great!! Based on my understanding, the following steps you could do:
+Calculate the # of observations for each species/observations. (E.g. 10 rasters if there are 10 species). This is the p_i in the formula. If the dataset is not very large, you could stack them together as a single raster brick.
+Then you do a raster calculation on them.  Something like this: assume rsts_p is the stack from step 1, then -sum(do.call(stack, lapply(rsts_p, function(each) each * log(each))))
+ 
+ 
+ Rough idea would be: extract the names of these unique species, then use lapply to these names to make the rasters automatically.  We could even combine step 1 and 2 together within the body of lapply, the idea of code is like this:
+
+
+ps <- do.call(stack, lapply(unique_species_names, function(nm_species){
+        # Step 1: calculate the # of observations for each species
+        # Step 2: calculate p (# of observations for each species/# of observations)
+        # Step 3: calculate p * ln(p)
+        return(result)
+})
+h <- -sum(ps)
+
+```{r}
+unique_species_name <- 
+  ds %>%
+  st_drop_geometry()%>%
+  dplyr::select(scientific_name) %>%
+  unlist() %>%
+  unique()
+
+unique_species_name[1:10]
+```
+
+```{r}
+
+#lapply(unique_species_name, length)
+
+test <- do.call(stack,
+  lapply(unique_species_name[1:5], function(nm_species){ 
+ nm_species <- rasterize(filter(ds, scientific_name ==  nm_species), r, field = "scientific_name", fun = "count")
+  nm_species[]<-ifelse(is.na(nm_species[]), 0, nm_species[]) # Change NAs for 0s
+  nm_species <-mask(nm_species, block)
+   })
+)
+
+plot(test)
+
+```
+
+
+
+
+
+```{r create raster of observations }
+
+
+#count observations 
+tmp <- rasterize(ds, r, field = "scientific_name", fun = "count")
+tmp[]<-ifelse(is.na(tmp[]), 0, tmp[]) # Change NAs for 0s
+tmp <-mask(tmp, block)
+
+
+#count species 
+tmpR <- rasterize(ds, r, field = "scientific_name", fun = function(x,...) length(unique(na.omit(x))))
+
+tmpR[]<-ifelse(is.na(tmpR[]), 0, tmpR[])
+
+tmpR<-mask(tmpR, block)
+
+```
+
+```{r}
+plot(tmp, main = "Observations")
+plot(block %>% st_geometry(), add= TRUE)
+#plot(ds %>% st_geometry(), pch = 20, alpha = .1, add = TRUE)
+
+plot(tmpR, main = "Richness")
+plot(block %>% st_geometry(), add= TRUE)
+```
+
+maybe i should make a stack of rasters where each raster layer is the distribution of each species??
+
+#plotting block groups
+
 ```{r create an object where each row is a inaturalist observation associated with the block group it lies within }
 
 #associate each iNaturalist point with a block group
@@ -100,7 +217,11 @@ filtered_blocks_iN <-
   group_by(GEOID) %>%
   dplyr::filter(GEOID %in% geoid_enough_samples)
 
-
+#random sample 30 observations from each block 
+set.seed(1)
+sampled_blocks<- filtered_blocks_iN %>% group_by(GEOID) %>% sample_n(30) %>% select(GEOID, species_guess, id, everything())
+  
+  
 #find block groups without large enough sample size 
 not_enough_obs <-
   st_join(block, ds) %>%
@@ -116,11 +237,20 @@ not_enough_obs <-
 
 b <- filtered_blocks_iN %>%
   group_by(GEOID) %>%
-  mutate(richness = length(scientific_name)) %>%
+  mutate(richness = length(unique(scientific_name))) %>%
   mutate(richness_density = (richness/ALAND)*1000) %>%
   mutate(rounded_richness_density = factor( round(richness_density, digits = 3)))%>%
-dplyr::select(GEOID,richness,richness_density, rounded_richness_density, everything())
+  mutate(index = richness/length(id)) %>%
+dplyr::select(GEOID,richness,richness_density, rounded_richness_density, index, everything())
 
+
+sb <- sampled_blocks%>%
+  group_by(GEOID) %>%
+  mutate(richness = length(unique(scientific_name))) %>%
+  mutate(richness_density = (richness/ALAND)*1000) %>%
+  mutate(rounded_richness_density = factor( round(richness_density, digits = 3)))%>%
+  mutate(index = richness/length(id)) %>%
+dplyr::select(GEOID,richness,richness_density, rounded_richness_density, index, everything())
 
 
 ```
@@ -131,19 +261,49 @@ dplyr::select(GEOID,richness,richness_density, rounded_richness_density, everyth
   geom_sf(data = b, aes(fill =factor( round(richness_density, digits = 2)))) +  
   geom_sf(data = not_enough_obs, aes()) +
   scale_fill_viridis_d(option = "A", "richness density")+ 
-  geom_sf(data = ds, aes(), alpha = .4, color = "white", fill = NA) +
+  #geom_sf(data = ds, aes(), alpha = .4, color = "white", fill = NA) +
   coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
 ```
 
-```{r plot just density}
+```{r plot just richness}
  ggplot()+
   geom_sf(data = b, aes(fill =factor( round(richness, digits = 2)))) +  
   geom_sf(data = not_enough_obs, aes()) +
   scale_fill_viridis_d(option = "A", "richness")+
   coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
 ```
-
-```{r}
+```{r interactive map of richness}
+mapview(b, zcol = "richness") + mapview(ds, zcol = "iconic_taxon_name") 
 
 ```
+
+shannon index or simpson index 
+- calculate index for each cell for raster or  point within 50 meter point radius 
+-vector version: radius of certain measurment to see diversity within that radisu for each obs 
+ 
+ 
+
+
+```{r plot sampled richness }
+
+ ggplot()+
+  geom_sf(data = sb, aes(fill =factor( round(richness, digits = 2)))) +  
+  geom_sf(data = not_enough_obs, aes()) +
+  scale_fill_viridis_d(option = "A", "richness")+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+```{r plot richness / total observations }
+ggplot()+
+  geom_sf(data = b, aes(fill =factor( round(index, digits = 2)))) +  
+  geom_sf(data = not_enough_obs, aes()) +
+  scale_fill_viridis_d(option = "A", "richness /\ntotal observations")+
+  coord_sf(xlim = c(-71.9, -71.7), ylim = c(42.2,42.35), expand = FALSE)
+```
+
+thoughts - plots where i gather on the ground biodiversity metrics to compare to iNaturalist and some independant variables 
+
+Challange is the block groups are not standardaized and the number of observations per block group are not standaradized. 
+
+What if I randomly sampled 30 observations for  
 
