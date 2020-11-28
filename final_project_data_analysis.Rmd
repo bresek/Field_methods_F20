@@ -1,0 +1,62 @@
+---
+title: "final_project_data_analysis"
+author: "Ben"
+date: "11/24/2020"
+output: html_document
+---
+```{r setup}
+library(tidyverse)
+library(janitor)
+```
+
+# reading in and cleaning data 
+
+```{r read in data}
+field_data <- read_csv("final_data.csv")
+field_data <- clean_names(field_data)
+sbs <- read_csv("final_project/shan_by_site.csv")
+
+```
+
+```{r join shanon diversity index by site name}
+field_data <- field_data %>% rename("site" = "site_name")
+sbs <- sbs %>% rename("site" = "label", "shannon_index" = "layer")
+
+plots <- left_join(field_data, sbs, by = "site") %>% select(-light_pollution_after_dark)
+plots <- plots %>% mutate(name = paste0(site,"_" , plot_number)) %>% select(name, everything())
+```
+
+```{r}
+site_means <- plots %>% group_by(site) %>% summarize_all(mean, na.rm = FALSE)
+site_means
+```
+# exploratory data analysis 
+```{r}
+si_scat <- function( xvar , data = plots, name = "Site Diversity index vs plot level "){
+  ggplot(data = data, aes_(y = ~shannon_index, x = as.name(xvar))) + 
+           geom_point(aes(color = factor(site), size = 2)) +
+    geom_smooth(method = "lm") +
+    labs(title = paste0(name, xvar))
+}
+
+lapply(names(plots[c(3:19)]), si_scat)
+lapply(names(site_means[c(3:19)]), si_scat, data = site_means, name = "Site Diversity index vs site average " )
+```
+
+```{r}
+lm(data = site_means,
+   shannon_index ~
+     sound_pollution_decibles +
+     number_pieces_of_litter +
+     percent_bare_soil +
+     percent_grass +
+     #percent_herbacous +
+     #inflitration
+     number_trees  
+     #percent_leaf_cover +
+     #flora_number_spp 
+     #fauna_number_individuals
+     ) %>% 
+  summary()
+```
+
